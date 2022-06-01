@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+
+    <style name="DrawerToggleStyle" parent="Widget.AppCompat.DrawerArrowToggle">
+
+        <item name="color">#fffbfe</item>
+
+    </style>
+
+    <style name="Circular">
+
+        <item name="cornerSize">50%</item>
+
+    </style>
+
+</resources>

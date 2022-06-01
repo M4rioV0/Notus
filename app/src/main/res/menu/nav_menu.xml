@@ -1,0 +1,46 @@
+<?xml version="1.0" encoding="utf-8"?>
+<menu xmlns:android="http://schemas.android.com/apk/res/android">
+
+    <group android:checkableBehavior="single">
+
+        <item
+            android:id="@+id/nav_item_notas"
+            android:title="@string/notas"
+            android:icon="@drawable/notepad"
+            android:checked="true" />
+
+        <item
+            android:id="@+id/nav_item_audios"
+            android:title="@string/audios"
+            android:icon="@drawable/audio"/>
+
+        <item
+            android:id="@+id/nav_item_calendario"
+            android:title="@string/calendario"
+            android:icon="@drawable/calendar"/>
+
+    </group>
+
+    <item android:title="@string/ajustes">
+
+        <menu>
+
+            <group android:checkableBehavior="single">
+
+                <item
+                    android:id="@+id/nav_item_configuracion"
+                    android:title="@string/configuracion"
+                    android:icon="@drawable/configuration"/>
+
+                <item
+                    android:id="@+id/nav_item_cuenta"
+                    android:title="@string/cuenta"
+                    android:icon="@drawable/account"/>
+            </group>
+
+        </menu>
+
+    </item>
+
+
+</menu>
