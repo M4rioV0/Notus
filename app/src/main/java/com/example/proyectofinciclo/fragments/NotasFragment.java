@@ -12,6 +12,7 @@ import androidx.recyclerview.widget.StaggeredGridLayoutManager;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.Toast;
 
 import com.example.proyectofinciclo.adapters.NotasAdapter;
 import com.example.proyectofinciclo.models.NotasModel;
@@ -81,6 +82,7 @@ public class NotasFragment extends Fragment {
         });
 
         notasAdapter.setOnClickListener(new View.OnClickListener() {
+
             @Override
             public void onClick(View view) {
 
@@ -93,6 +95,7 @@ public class NotasFragment extends Fragment {
                 startActivity(new Intent(getActivity().getApplication(),CrearNotasActivity.class));
 
             }
+
         });
 
         return view;
@@ -123,24 +126,13 @@ public class NotasFragment extends Fragment {
     }
 
     @Override
-    public void onResume() {
-        super.onResume();
-        consultarListaNotas();
-
-    }
-
-    @Override
     public void onStart() {
         super.onStart();
+        consultarListaNotas();
+
+        Toast.makeText(getActivity().getApplication(), "a", Toast.LENGTH_SHORT).show();
     }
 
-    private void eliminarNota(){
-
-    }
-
-    private void editarNota(){
-
-    }
 
 
 }
