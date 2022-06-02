@@ -36,6 +36,10 @@ public class NotasFragment extends Fragment {
     ArrayList<NotasModel> listaNotas;
     NotasAdapter notasAdapter;
 
+
+    public static NotasModel nota;
+    public static boolean editar;
+
     //DB
     public static SQLite conn;
 
@@ -48,6 +52,9 @@ public class NotasFragment extends Fragment {
 
         View view = inflater.inflate(R.layout.fragment_notas, container, false);
         // Inflate the layout for this fragment
+
+        nota = new NotasModel("","",0);
+        editar = false;
 
         conn = new SQLite(getActivity().getApplication(),"bd_notas",null,1);
 
@@ -73,6 +80,21 @@ public class NotasFragment extends Fragment {
             }
         });
 
+        notasAdapter.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+
+                nota.setId(listaNotas.get(notasRecicler.getChildAdapterPosition(view)).getId());
+                nota.setTitulo(listaNotas.get(notasRecicler.getChildAdapterPosition(view)).getTitulo());
+                nota.setContenido(listaNotas.get(notasRecicler.getChildAdapterPosition(view)).getContenido());
+
+                editar = true;
+
+                startActivity(new Intent(getActivity().getApplication(),CrearNotasActivity.class));
+
+            }
+        });
+
         return view;
     }
 
@@ -89,8 +111,9 @@ public class NotasFragment extends Fragment {
         while (cursor.moveToNext()){
 
             notasModel = new NotasModel();
-            notasModel.setTitulo(cursor.getString(0));
-            notasModel.setContenido(cursor.getString(1));
+            notasModel.setId(cursor.getInt(0));
+            notasModel.setTitulo(cursor.getString(1));
+            notasModel.setContenido(cursor.getString(2));
 
             listaNotas.add(notasModel);
 

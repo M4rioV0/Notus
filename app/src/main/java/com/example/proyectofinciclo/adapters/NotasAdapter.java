@@ -13,9 +13,10 @@ import com.example.proyectofinciclo.R;
 
 import java.util.ArrayList;
 
-public class NotasAdapter extends RecyclerView.Adapter<NotasAdapter.NotasViewHolder> {
+public class NotasAdapter extends RecyclerView.Adapter<NotasAdapter.NotasViewHolder> implements  View.OnClickListener{
 
     private ArrayList<NotasModel> listaNotas  = new ArrayList<>();
+    private View.OnClickListener listener;
 
     public NotasAdapter(ArrayList<NotasModel> listaNotas) {
         this.listaNotas = listaNotas;
@@ -26,7 +27,9 @@ public class NotasAdapter extends RecyclerView.Adapter<NotasAdapter.NotasViewHol
     public NotasViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
 
         View view = LayoutInflater.from(parent.getContext()).inflate(R.layout.layout_notas,parent,false);
+        view.setOnClickListener(this);
         NotasViewHolder nvh = new NotasViewHolder(view);
+
         return  nvh;
 
     }
@@ -42,6 +45,20 @@ public class NotasAdapter extends RecyclerView.Adapter<NotasAdapter.NotasViewHol
     @Override
     public int getItemCount() {
         return listaNotas.size();
+    }
+
+    public void setOnClickListener(View.OnClickListener listener){
+        this.listener=listener;
+
+    }
+
+    @Override
+    public void onClick(View view) {
+
+        if(listener!=null){
+            listener.onClick(view);
+        }
+
     }
 
     public class  NotasViewHolder extends RecyclerView.ViewHolder{
