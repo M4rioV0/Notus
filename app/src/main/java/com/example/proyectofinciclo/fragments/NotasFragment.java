@@ -6,6 +6,7 @@ import android.database.sqlite.SQLiteDatabase;
 import android.os.Bundle;
 
 import androidx.fragment.app.Fragment;
+import androidx.fragment.app.FragmentTransaction;
 import androidx.recyclerview.widget.RecyclerView;
 import androidx.recyclerview.widget.StaggeredGridLayoutManager;
 
@@ -33,6 +34,9 @@ public class NotasFragment extends Fragment {
     FloatingActionButton floatingActionButton;
     RecyclerView notasRecicler;
     StaggeredGridLayoutManager staggeredGridLayoutManager;
+    FloatingActionButton floatingActionButtonEdit;
+    FloatingActionButton floatingActionButtonDelete;
+    FloatingActionButton floatingActionButtonSelectAll;
 
     ArrayList<NotasModel> listaNotas;
     NotasAdapter notasAdapter;
@@ -68,7 +72,16 @@ public class NotasFragment extends Fragment {
         notasAdapter = new NotasAdapter(listaNotas);
         notasRecicler.setAdapter(notasAdapter);
 
+        //Buttons
         floatingActionButton = view.findViewById(R.id.floatingActionButton);
+        floatingActionButtonEdit = view.findViewById(R.id.floatingActionButtonEdit);
+        floatingActionButtonDelete = view.findViewById(R.id.floatingActionButtonDelete);
+        floatingActionButtonSelectAll = view.findViewById(R.id.floatingActionButtonSelectAll);
+
+        floatingActionButtonEdit.hide();
+        floatingActionButtonDelete.hide();
+        floatingActionButtonSelectAll.hide();
+
 
         consultarListaNotas();
 
@@ -122,6 +135,7 @@ public class NotasFragment extends Fragment {
 
         }
 
+        notasAdapter.notifyDataSetChanged();
 
     }
 
@@ -130,9 +144,12 @@ public class NotasFragment extends Fragment {
         super.onStart();
         consultarListaNotas();
 
-        Toast.makeText(getActivity().getApplication(), "a", Toast.LENGTH_SHORT).show();
     }
 
+    private void eliminarNotas(ArrayList<NotasModel> listaNotasEliminadas){
 
+
+
+    }
 
 }

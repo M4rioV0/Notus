@@ -49,6 +49,7 @@ public class CrearNotasActivity extends AppCompatActivity {
                    }else {
                        registrarNota();
                    }
+
                     finish();
                 }
 

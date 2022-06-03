@@ -4,7 +4,8 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     xmlns:app="http://schemas.android.com/apk/res-auto"
-    tools:context=".fragments.NotasFragment">
+    tools:context=".fragments.NotasFragment"
+    android:id="@+id/fragment_notas">
 
     <!-- TODO: Update blank fragment layout -->
 
@@ -20,11 +21,50 @@
         android:id="@+id/floatingActionButton"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:clickable="true"
         android:background="#ffdeb7"
+        android:clickable="true"
         android:contentDescription="@string/empty"
         android:src="@drawable/ic_baseline_add_24"
         android:translationX="310dp"
+        android:translationY="560dp"
+        app:maxImageSize="40dp"
+        tools:ignore="SpeakableTextPresentCheck,DuplicateClickableBoundsCheck,DuplicateClickableBoundsCheck" />
+
+    <com.google.android.material.floatingactionbutton.FloatingActionButton
+        android:id="@+id/floatingActionButtonSelectAll"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:background="#ffdeb7"
+        android:clickable="true"
+        android:contentDescription="@string/empty"
+        android:src="@drawable/ic_baseline_select_all_24"
+        android:translationX="310dp"
+        android:translationY="560dp"
+        app:maxImageSize="40dp"
+        tools:ignore="SpeakableTextPresentCheck" />
+
+    <com.google.android.material.floatingactionbutton.FloatingActionButton
+        android:id="@+id/floatingActionButtonDelete"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:background="#ffdeb7"
+        android:clickable="true"
+        android:contentDescription="@string/empty"
+        android:src="@drawable/ic_baseline_delete_24"
+        android:translationX="310dp"
+        android:translationY="485dp"
+        app:maxImageSize="40dp"
+        tools:ignore="SpeakableTextPresentCheck" />
+
+    <com.google.android.material.floatingactionbutton.FloatingActionButton
+        android:id="@+id/floatingActionButtonEdit"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:background="#ffdeb7"
+        android:clickable="true"
+        android:contentDescription="@string/empty"
+        android:src="@drawable/ic_baseline_edit_24"
+        android:translationX="235dp"
         android:translationY="560dp"
         app:maxImageSize="40dp"
         tools:ignore="SpeakableTextPresentCheck" />

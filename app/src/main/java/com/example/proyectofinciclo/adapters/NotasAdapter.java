@@ -6,6 +6,7 @@ import android.view.ViewGroup;
 import android.widget.TextView;
 
 import androidx.annotation.NonNull;
+import androidx.fragment.app.Fragment;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.example.proyectofinciclo.models.NotasModel;
@@ -32,6 +33,10 @@ public class NotasAdapter extends RecyclerView.Adapter<NotasAdapter.NotasViewHol
 
         return  nvh;
 
+    }
+
+    public interface OnItemLongClickListener {
+        public boolean onItemLongClicked(int position);
     }
 
     @Override
