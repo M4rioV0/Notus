@@ -35,10 +35,6 @@ public class NotasAdapter extends RecyclerView.Adapter<NotasAdapter.NotasViewHol
 
     }
 
-    public interface OnItemLongClickListener {
-        public boolean onItemLongClicked(int position);
-    }
-
     @Override
     public void onBindViewHolder(@NonNull NotasViewHolder holder, int position) {
 
