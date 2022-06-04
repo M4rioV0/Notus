@@ -10,12 +10,6 @@
         android:supportsRtl="true"
         android:theme="@style/Tema">
         <activity
-            android:name=".activities.SignUpActivity"
-            android:exported="false" />
-        <activity
-            android:name=".activities.LogInActivity"
-            android:exported="false" />
-        <activity
             android:name=".activities.CrearNotasActivity"
             android:exported="false" />
         <activity

@@ -1,0 +1,39 @@
+{
+  "project_info": {
+    "project_number": "418520071361",
+    "project_id": "proyectofinciclo-ae24f",
+    "storage_bucket": "proyectofinciclo-ae24f.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:418520071361:android:778d93491c57bc44dd6840",
+        "android_client_info": {
+          "package_name": "com.example.proyectofinciclo"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "418520071361-g33qtdttia4eua0b2goaq6cgd62ilq6o.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyDcL8Ba98bmn_ZSra3Qss-qehZSVx91i0M"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "418520071361-g33qtdttia4eua0b2goaq6cgd62ilq6o.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
