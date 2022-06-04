@@ -48,8 +48,13 @@
         android:translationY="140dp"
         />
 
+    <ImageView
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:id="@+id/iv_imagen_nota"/>
+
     <Button
-        android:id="@+id/btt_descartar_nota"
+        android:id="@+id/btt_eliminar_nota"
         android:layout_width="65dp"
         android:layout_height="50dp"
         android:translationX="325dp"
@@ -62,7 +67,7 @@
         android:layout_height="50dp"
         android:translationX="20dp"
         android:translationY="670dp"
-        app:icon="@drawable/add_image" />
+        app:icon="@drawable/ic_baseline_add_photo_alternate_24" />
 
 
 </RelativeLayout>

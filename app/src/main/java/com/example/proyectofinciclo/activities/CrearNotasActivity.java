@@ -1,11 +1,14 @@
 package com.example.proyectofinciclo.activities;
 
+import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
 
 import android.content.ContentValues;
+import android.content.Intent;
 import android.database.sqlite.SQLiteDatabase;
 import android.os.Bundle;
 import android.view.View;
+import android.widget.Button;
 import android.widget.EditText;
 import android.widget.Toast;
 
@@ -19,6 +22,8 @@ public class CrearNotasActivity extends AppCompatActivity {
     EditText editTextTitulo;
     EditText editTextContenido;
     FloatingActionButton salirGuardarNota;
+    Button buttonDelete;
+    Button buttonAddImage;
     int num = 0;
 
 
@@ -34,8 +39,13 @@ public class CrearNotasActivity extends AppCompatActivity {
         editTextTitulo = findViewById(R.id.et_titulo_nota);
         editTextContenido = findViewById(R.id.et_contenido_nota);
         salirGuardarNota = findViewById(R.id.fab_exit_crear_notas_layout);
+        buttonDelete = findViewById(R.id.btt_eliminar_nota);
 
-        rellenarCampos();
+
+        if (NotasFragment.editar==true){
+            rellenarCampos();
+        }
+
 
         salirGuardarNota.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -53,6 +63,24 @@ public class CrearNotasActivity extends AppCompatActivity {
                     finish();
                 }
 
+            }
+        });
+
+        buttonDelete.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                if (editTextContenido.getText().toString().isEmpty()||editTextTitulo.getText().toString().isEmpty()){
+                    finish();
+                }else{
+                    if (NotasFragment.editar==true){
+                        eliminarNota();
+                        editTextTitulo.setText("");
+                        editTextContenido.setText("");
+                        finish();
+                    }else {
+                        finish();
+                    }
+                }
             }
         });
 
@@ -84,8 +112,6 @@ public class CrearNotasActivity extends AppCompatActivity {
 
     public void actualizarNota(){
 
-        Toast.makeText(this,"actualizar",Toast.LENGTH_LONG);
-
         SQLiteDatabase db = NotasFragment.conn.getWritableDatabase();
 
         String[] id = {String.valueOf(NotasFragment.nota.getId())};
@@ -98,4 +124,17 @@ public class CrearNotasActivity extends AppCompatActivity {
 
     }
 
+    public void eliminarNota(){
+
+        SQLiteDatabase db = NotasFragment.conn.getWritableDatabase();
+        String[] id = {String.valueOf(NotasFragment.nota.getId())};
+
+        db.delete(Utilidades.tablaNotas,Utilidades.campoId+"=?",id);
+        NotasFragment.editar = false;
+    }
+
+    @Override
+    protected void onActivityResult(int requestCode, int resultCode, @Nullable Intent data) {
+        super.onActivityResult(requestCode, resultCode, data);
+    }
 }

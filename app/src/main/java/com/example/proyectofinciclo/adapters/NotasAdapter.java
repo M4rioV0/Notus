@@ -19,6 +19,7 @@ public class NotasAdapter extends RecyclerView.Adapter<NotasAdapter.NotasViewHol
     private ArrayList<NotasModel> listaNotas  = new ArrayList<>();
     private View.OnClickListener listener;
 
+
     public NotasAdapter(ArrayList<NotasModel> listaNotas) {
         this.listaNotas = listaNotas;
     }
@@ -71,6 +72,7 @@ public class NotasAdapter extends RecyclerView.Adapter<NotasAdapter.NotasViewHol
 
             titulo = (TextView) itemView.findViewById(R.id.note_title);
             contenido = (TextView) itemView.findViewById(R.id.note_content);
+
 
         }
 
