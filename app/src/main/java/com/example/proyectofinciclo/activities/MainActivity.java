@@ -18,6 +18,7 @@ import android.util.Log;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.ImageButton;
+import android.widget.ImageView;
 import android.widget.Toast;
 
 import com.example.proyectofinciclo.fragments.AudiosFragment;
@@ -46,7 +47,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
     Toolbar toolbar;
 
     //Toolbar UI
-    ImageButton imageButton;
+    ImageView imgUser;
 
     ActionBarDrawerToggle actionBarDrawerToggle;
 
@@ -78,7 +79,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
 
         //Toolbar UI
 
-        imageButton = findViewById(R.id.imb_user);
+        imgUser = findViewById(R.id.img_user);
 
         getSupportFragmentManager().beginTransaction().add(R.id.content, new NotasFragment()).commit();
 
@@ -98,7 +99,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
 
         createRequest(savedInstanceState);
 
-        imageButton.setOnClickListener(new View.OnClickListener() {
+        imgUser.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 signIn();
