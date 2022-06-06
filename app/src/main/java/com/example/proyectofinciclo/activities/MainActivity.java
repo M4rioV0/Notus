@@ -19,6 +19,7 @@ import android.view.MenuItem;
 import android.view.View;
 import android.widget.ImageButton;
 import android.widget.ImageView;
+import android.widget.TextView;
 import android.widget.Toast;
 
 import com.example.proyectofinciclo.fragments.AudiosFragment;
@@ -33,6 +34,7 @@ import com.google.android.gms.auth.api.signin.GoogleSignInOptions;
 import com.google.android.gms.common.api.ApiException;
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.Task;
+import com.google.android.material.imageview.ShapeableImageView;
 import com.google.android.material.navigation.NavigationView;
 import com.google.firebase.auth.AuthCredential;
 import com.google.firebase.auth.AuthResult;
@@ -48,6 +50,10 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
 
     //Toolbar UI
     ImageView imgUser;
+
+    ShapeableImageView imgUserNav;
+    TextView txvUserName;
+    TextView txvUserEmail;
 
     ActionBarDrawerToggle actionBarDrawerToggle;
 
@@ -75,11 +81,12 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         //UI
         drawerLayout = findViewById(R.id.drawer_layout);
         navigationView = findViewById(R.id.nav_view);
-        toolbar = findViewById(R.id.toolbar);
-
-        //Toolbar UI
-
         imgUser = findViewById(R.id.img_user);
+        toolbar = findViewById(R.id.toolbar);
+        imgUserNav = findViewById(R.id.img_user_nav);
+        txvUserName = findViewById(R.id.text_view_nombreusuario);
+        txvUserEmail = findViewById(R.id.textView_correo);
+
 
         getSupportFragmentManager().beginTransaction().add(R.id.content, new NotasFragment()).commit();
 
@@ -123,6 +130,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         // Initialize Firebase Auth
         mAuth = FirebaseAuth.getInstance();
         // [END initialize_auth]
+
     }
 
     // [START on_start_check_user]
@@ -150,7 +158,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
                 firebaseAuthWithGoogle(account.getIdToken());
             } catch (ApiException e) {
                 // Google Sign In failed, update UI appropriately
-                Log.w(TAG, "Google sign in failed", e);
+                Toast.makeText(this, "c", Toast.LENGTH_SHORT).show();
             }
         }
     }
@@ -165,12 +173,12 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
                     public void onComplete(@NonNull Task<AuthResult> task) {
                         if (task.isSuccessful()) {
                             // Sign in success, update UI with the signed-in user's information
-                            Log.d(TAG, "signInWithCredential:success");
+                            Toast.makeText(MainActivity.this, "a", Toast.LENGTH_SHORT).show();
                             FirebaseUser user = mAuth.getCurrentUser();
                             updateUI(user);
                         } else {
                             // If sign in fails, display a message to the user.
-                            Log.w(TAG, "signInWithCredential:failure", task.getException());
+                            Toast.makeText(MainActivity.this, "b", Toast.LENGTH_SHORT).show();
                             updateUI(null);
                         }
                     }
@@ -188,9 +196,9 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
     private void updateUI(FirebaseUser user) {
         FirebaseUser currentUser = FirebaseAuth.getInstance().getCurrentUser();
         if (currentUser!=null){
-            Intent intent = new Intent(MainActivity.this,MainActivity.class);
-            startActivity(intent);
-            finish();
+            //imgUser.setImageResource(currentUser.getPhotoUrl().);
+            txvUserName.setText(currentUser.getDisplayName());
+            txvUserEmail.setText(currentUser.getEmail());
         }
     }
 
