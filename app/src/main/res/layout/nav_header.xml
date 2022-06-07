@@ -14,7 +14,6 @@
         android:layout_height="50dp"
         android:layout_marginRight="10dp"
         android:background="#B6B7B8"
-        tools:src="@drawable/usuario"
         app:shapeAppearance="@style/Circular"/>
 
     <TextView
