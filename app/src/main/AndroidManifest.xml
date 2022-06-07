@@ -10,6 +10,9 @@
         android:supportsRtl="true"
         android:theme="@style/Tema">
         <activity
+            android:name=".activities.ForgotPassword"
+            android:exported="false" />
+        <activity
             android:name=".activities.SignUp"
             android:exported="false" />
         <activity
