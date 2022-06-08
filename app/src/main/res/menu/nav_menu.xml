@@ -14,11 +14,6 @@
             android:title="@string/audios"
             android:icon="@drawable/audio"/>
 
-        <item
-            android:id="@+id/nav_item_calendario"
-            android:title="@string/calendario"
-            android:icon="@drawable/calendar"/>
-
     </group>
 
     <item android:title="@string/ajustes">

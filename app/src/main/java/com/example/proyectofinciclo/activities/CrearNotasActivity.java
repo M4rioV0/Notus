@@ -1,5 +1,6 @@
 package com.example.proyectofinciclo.activities;
 
+import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
 
@@ -15,7 +16,16 @@ import android.widget.Toast;
 import com.example.proyectofinciclo.fragments.NotasFragment;
 import com.example.proyectofinciclo.R;
 import com.example.proyectofinciclo.database.Utilidades;
+import com.google.android.gms.tasks.OnFailureListener;
+import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
+import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.auth.FirebaseUser;
+import com.google.firebase.firestore.DocumentReference;
+import com.google.firebase.firestore.FirebaseFirestore;
+
+import java.util.HashMap;
+import java.util.Map;
 
 public class CrearNotasActivity extends AppCompatActivity {
 
@@ -25,6 +35,10 @@ public class CrearNotasActivity extends AppCompatActivity {
     Button buttonDelete;
     Button buttonAddImage;
     int num = 0;
+
+    FirebaseAuth firebaseAuth;
+    FirebaseUser firebaseUser;
+    FirebaseFirestore firebaseFirestore;
 
 
 
@@ -40,6 +54,10 @@ public class CrearNotasActivity extends AppCompatActivity {
         editTextContenido = findViewById(R.id.et_contenido_nota);
         salirGuardarNota = findViewById(R.id.fab_exit_crear_notas_layout);
         buttonDelete = findViewById(R.id.btt_eliminar_nota);
+
+        firebaseAuth = FirebaseAuth.getInstance();
+        firebaseFirestore = FirebaseFirestore.getInstance();
+        firebaseUser = FirebaseAuth.getInstance().getCurrentUser();
 
 
         if (NotasFragment.editar==true){
@@ -58,8 +76,10 @@ public class CrearNotasActivity extends AppCompatActivity {
                        actualizarNota();
                    }else {
                        registrarNota();
+                       if (firebaseUser!=null){
+                           registrarNotaFireBase();
+                       }
                    }
-
                     finish();
                 }
 
@@ -81,6 +101,28 @@ public class CrearNotasActivity extends AppCompatActivity {
                         finish();
                     }
                 }
+            }
+        });
+
+    }
+
+    private void registrarNotaFireBase() {
+        DocumentReference documentReference = firebaseFirestore
+                .collection("notes")
+                .document(firebaseUser.getUid())
+                .collection("myNotes").document(String.valueOf(NotasFragment.nota.getId()));
+        Map<String ,Object> note = new HashMap<>();
+        note.put("title",editTextTitulo.getText().toString());
+        note.put("content",editTextContenido.getText().toString());
+        documentReference.set(note).addOnSuccessListener(new OnSuccessListener<Void>() {
+            @Override
+            public void onSuccess(Void unused) {
+                Toast.makeText(CrearNotasActivity.this, "Nota guardada", Toast.LENGTH_SHORT).show();
+            }
+        }).addOnFailureListener(new OnFailureListener() {
+            @Override
+            public void onFailure(@NonNull Exception e) {
+                Toast.makeText(CrearNotasActivity.this, "error al guardar la nota", Toast.LENGTH_SHORT).show();
             }
         });
 

@@ -43,6 +43,8 @@ public class SignIn extends AppCompatActivity {
         editTextEmail = findViewById(R.id.et_correo_sn);
         editTextPass = findViewById(R.id.et_contraseña_sn);
 
+
+
         firebaseAuth = FirebaseAuth.getInstance();
         FirebaseUser firebaseUser = firebaseAuth.getCurrentUser();
 
@@ -51,6 +53,7 @@ public class SignIn extends AppCompatActivity {
             @Override
             public void onClick(View view) {
                 finish();
+                startActivity(new Intent(SignIn.this,MainActivity.class));
             }
         });
 

@@ -151,87 +151,16 @@ public class CuentaFragment extends Fragment {
         return view;
     }
 
-    private void cropImageMethod(){
-            try {
-                Intent cropIntent = new Intent("com.android.camera.action.CROP");
-                // indicate image type and Uri
-                cropIntent.setDataAndType(imageUri, "image/*");
-                // set crop properties here
-                cropIntent.putExtra("crop", true);
-                // indicate aspect of desired crop
-                cropIntent.putExtra("aspectX", 1);
-                cropIntent.putExtra("aspectY", 1);
-                // indicate output X and Y
-                cropIntent.putExtra("outputX", 128);
-                cropIntent.putExtra("outputY", 128);
-                // retrieve data on return
-                cropIntent.putExtra("return-data", true);
-                // start the activity - we handle returning in onActivityResult
-                startActivityForResult(cropIntent, PIC_CROP);
-            }
-            // respond to users whose devices do not support the crop action
-            catch (ActivityNotFoundException anfe) {
-                // display an error message
-                String errorMessage = "Error al recortar la imagen";
-                Toast toast = Toast.makeText(getActivity().getApplication(), errorMessage, Toast.LENGTH_SHORT);
-                toast.show();
-            }
+    private void selectImage(){
+
     }
 
-    @Override
-    public void onActivityResult(int requestCode, int resultCode, Intent data) {
-        super.onActivityResult(requestCode, resultCode, data);
+    private void cropImageMethod(){
 
-        if (requestCode == PIC_CROP) {
-            if (data != null) {
-                // get the returned data
-                Bundle extras = data.getExtras();
-                // get the cropped bitmap
-                Bitmap selectedBitmap = extras.getParcelable("data");
-
-                imageViewUserProfilePic.setImageBitmap(selectedBitmap);
-                imageViewUserProfilePic.setImageURI(imageUri);
-            }
-        }
     }
 
     private void uploadProfileImage() {
 
-        final ProgressDialog progressDialog = new ProgressDialog(getActivity().getApplication());
-        progressDialog.setMessage("Subiendo imagen de perfil");
-        progressDialog.show();
-
-        if (imageUri!=null){
-            final StorageReference fileRef = storageProfilePicReference
-                    .child(firebaseAuth.getCurrentUser().getUid()+".jpg");
-            uploadTask = fileRef.putFile(imageUri);
-            uploadTask.continueWithTask(new Continuation() {
-                @Override
-                public Object then(@NonNull Task task) throws Exception {
-                    if(task.isSuccessful()){
-                        throw task.getException();
-                    }
-                    return fileRef.getDownloadUrl();
-                }
-            }).addOnCompleteListener(new OnCompleteListener() {
-                @Override
-                public void onComplete(@NonNull Task task) {
-                    if (task.isSuccessful()){
-                        Uri downloadUri = (Uri) task.getResult();
-                        myUri = downloadUri.toString();
-                        HashMap<String,Object> userMap = new HashMap<>();
-                        userMap.put("image",myUri);
-
-                        databaseReference.child(firebaseAuth.getCurrentUser().getUid()).updateChildren(userMap);
-
-                        progressDialog.dismiss();
-                    }
-                }
-            });
-        }else{
-            Toast.makeText(getActivity().getApplication(), "imagen no seleccionada", Toast.LENGTH_SHORT).show();
-            progressDialog.dismiss();
-        }
     }
 
     private void getUserInfo(){
