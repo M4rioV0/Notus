@@ -60,6 +60,8 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
 
     ActionBarDrawerToggle actionBarDrawerToggle;
 
+    FirebaseAuth  firebaseAuth;
+
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -72,6 +74,9 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         imgUser = findViewById(R.id.img_user);
         toolbar = findViewById(R.id.toolbar);
 
+        firebaseAuth = FirebaseAuth.getInstance();
+        FirebaseUser firebaseUser = firebaseAuth.getCurrentUser();
+
         //UI set resources
         imgUser.setImageResource(R.drawable.usuario);
 
@@ -80,6 +85,10 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         txvUserName = nview.findViewById(R.id.text_view_nombreusuario);
         txvUserEmail = nview.findViewById(R.id.textView_correo);
         imgUserNav.setImageResource(R.drawable.usuario);
+
+        if (firebaseUser!=null){
+            txvUserEmail.setText(firebaseUser.getEmail());
+        }
 
 
         getSupportFragmentManager().beginTransaction().add(R.id.content, new NotasFragment()).commit();
@@ -97,8 +106,10 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         imgUser.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                Intent intent = new Intent(getApplicationContext(),SignIn.class);
-                startActivity(intent);
+                if (firebaseUser==null){
+                    Intent intent = new Intent(getApplicationContext(),SignIn.class);
+                    startActivity(intent);
+                }
             }
         });
 
