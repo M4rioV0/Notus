@@ -125,7 +125,6 @@ public class CrearNotasActivity extends AppCompatActivity {
                 Toast.makeText(CrearNotasActivity.this, "error al guardar la nota", Toast.LENGTH_SHORT).show();
             }
         });
-
     }
 
     private void rellenarCampos() {

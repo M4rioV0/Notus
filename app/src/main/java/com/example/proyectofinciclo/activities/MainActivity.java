@@ -18,6 +18,7 @@ import android.view.View;
 import android.widget.ImageView;
 import android.widget.TextView;
 
+import com.example.proyectofinciclo.adapters.NotasAdapter;
 import com.example.proyectofinciclo.fragments.AudiosFragment;
 import com.example.proyectofinciclo.fragments.CuentaFragment;
 import com.example.proyectofinciclo.fragments.NotasFragment;
@@ -25,6 +26,7 @@ import com.example.proyectofinciclo.R;
 import com.google.android.material.navigation.NavigationView;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
+import com.google.firebase.firestore.FirebaseFirestore;
 
 public class MainActivity extends AppCompatActivity implements NavigationView.OnNavigationItemSelectedListener {
 
@@ -41,7 +43,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
     ActionBarDrawerToggle actionBarDrawerToggle;
 
     FirebaseAuth  firebaseAuth;
-
+    FirebaseFirestore firebaseFirestore;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -56,6 +58,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
 
         firebaseAuth = FirebaseAuth.getInstance();
         FirebaseUser firebaseUser = firebaseAuth.getCurrentUser();
+        firebaseFirestore = FirebaseFirestore.getInstance();
 
         //UI set resources
         imgUser.setImageResource(R.drawable.usuario);

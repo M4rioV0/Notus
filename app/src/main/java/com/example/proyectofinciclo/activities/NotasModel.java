@@ -1,4 +1,4 @@
-package com.example.proyectofinciclo.models;
+package com.example.proyectofinciclo.activities;
 
 public class NotasModel {
 

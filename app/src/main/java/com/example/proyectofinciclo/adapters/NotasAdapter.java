@@ -6,10 +6,9 @@ import android.view.ViewGroup;
 import android.widget.TextView;
 
 import androidx.annotation.NonNull;
-import androidx.fragment.app.Fragment;
 import androidx.recyclerview.widget.RecyclerView;
 
-import com.example.proyectofinciclo.models.NotasModel;
+import com.example.proyectofinciclo.activities.NotasModel;
 import com.example.proyectofinciclo.R;
 
 import java.util.ArrayList;
