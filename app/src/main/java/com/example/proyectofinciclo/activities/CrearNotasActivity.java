@@ -7,7 +7,9 @@ import androidx.appcompat.app.AppCompatActivity;
 import android.content.ContentValues;
 import android.content.Intent;
 import android.database.sqlite.SQLiteDatabase;
+import android.nfc.Tag;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
@@ -16,8 +18,10 @@ import android.widget.Toast;
 import com.example.proyectofinciclo.fragments.NotasFragment;
 import com.example.proyectofinciclo.R;
 import com.example.proyectofinciclo.database.Utilidades;
+import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.OnSuccessListener;
+import com.google.android.gms.tasks.Task;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
@@ -47,8 +51,6 @@ public class CrearNotasActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_crear_notas);
 
-
-
         //UI para crear notas
         editTextTitulo = findViewById(R.id.et_titulo_nota);
         editTextContenido = findViewById(R.id.et_contenido_nota);
@@ -58,7 +60,6 @@ public class CrearNotasActivity extends AppCompatActivity {
         firebaseAuth = FirebaseAuth.getInstance();
         firebaseFirestore = FirebaseFirestore.getInstance();
         firebaseUser = FirebaseAuth.getInstance().getCurrentUser();
-
 
         if (NotasFragment.editar==true){
             rellenarCampos();
@@ -74,6 +75,9 @@ public class CrearNotasActivity extends AppCompatActivity {
                 }else{
                    if (NotasFragment.editar==true){
                        actualizarNota();
+                       if (firebaseUser!=null){
+                           actualizarNotaFirebase();
+                       }
                    }else {
                        registrarNota();
                        if (firebaseUser!=null){
@@ -94,6 +98,9 @@ public class CrearNotasActivity extends AppCompatActivity {
                 }else{
                     if (NotasFragment.editar==true){
                         eliminarNota();
+                        if (firebaseUser!=null){
+                            eliminarNotaFirebase();
+                        }
                         editTextTitulo.setText("");
                         editTextContenido.setText("");
                         finish();
@@ -104,6 +111,70 @@ public class CrearNotasActivity extends AppCompatActivity {
             }
         });
 
+    }
+
+    private void eliminarNotaFirebase() {
+        DocumentReference documentReference = firebaseFirestore.collection("notes")
+                .document(firebaseUser.getUid())
+                .collection("myNotes").document(String.valueOf(NotasFragment.nota.getId()-1));
+
+        documentReference
+                .delete()
+                .addOnSuccessListener(new OnSuccessListener<Void>() {
+                    @Override
+                    public void onSuccess(Void unused) {
+                        Toast.makeText(CrearNotasActivity.this, "Nota eliminada", Toast.LENGTH_SHORT).show();
+                    }
+                })
+                .addOnFailureListener(new OnFailureListener() {
+                    @Override
+                    public void onFailure(@NonNull Exception e) {
+                        Toast.makeText(CrearNotasActivity.this, "Error al intentar eliminar la nota", Toast.LENGTH_SHORT).show();
+                    }
+                });
+
+    }
+
+    private void actualizarNotaFirebase() {
+        DocumentReference documentReference = firebaseFirestore
+                .collection("notes")
+                .document(firebaseUser.getUid())
+                .collection("myNotes").document(String.valueOf(NotasFragment.nota.getId()-1));
+
+        Map<String ,Object> note = new HashMap<>();
+        String titulo = editTextTitulo.getText().toString();
+        String contenido = editTextContenido.getText().toString();
+        note.put("title",titulo);
+        note.put("content",contenido);
+
+        documentReference
+                .update(note)
+                .addOnSuccessListener(new OnSuccessListener<Void>() {
+                    @Override
+                    public void onSuccess(Void unused) {
+                        //Toast.makeText(CrearNotasActivity.this, "Titulo actualizado", Toast.LENGTH_SHORT).show();
+                    }
+                })
+                .addOnFailureListener(new OnFailureListener() {
+                    @Override
+                    public void onFailure(@NonNull Exception e) {
+                        //Toast.makeText(CrearNotasActivity.this, "fallo al actualizar el titulo", Toast.LENGTH_SHORT).show();
+                    }
+                });
+        documentReference
+                .update(note)
+                .addOnSuccessListener(new OnSuccessListener<Void>() {
+                    @Override
+                    public void onSuccess(Void unused) {
+                        //Toast.makeText(CrearNotasActivity.this, "Contenido actualizado", Toast.LENGTH_SHORT).show();
+                    }
+                })
+                .addOnFailureListener(new OnFailureListener() {
+                    @Override
+                    public void onFailure(@NonNull Exception e) {
+                        //Toast.makeText(CrearNotasActivity.this, "fallo al actualizar el contenido", Toast.LENGTH_SHORT).show();
+                    }
+                });
     }
 
     private void registrarNotaFireBase() {

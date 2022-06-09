@@ -5,6 +5,7 @@ import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 import android.os.Bundle;
 
+import androidx.annotation.NonNull;
 import androidx.fragment.app.Fragment;
 import androidx.recyclerview.widget.RecyclerView;
 import androidx.recyclerview.widget.StaggeredGridLayoutManager;
@@ -14,12 +15,19 @@ import android.view.View;
 import android.view.ViewGroup;
 
 import com.example.proyectofinciclo.adapters.NotasAdapter;
-import com.example.proyectofinciclo.activities.NotasModel;
+import com.example.proyectofinciclo.models.NotasModel;
 import com.example.proyectofinciclo.R;
 import com.example.proyectofinciclo.database.SQLite;
 import com.example.proyectofinciclo.database.Utilidades;
 import com.example.proyectofinciclo.activities.CrearNotasActivity;
+import com.google.android.gms.tasks.OnCompleteListener;
+import com.google.android.gms.tasks.Task;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
+import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.auth.FirebaseUser;
+import com.google.firebase.firestore.FirebaseFirestore;
+import com.google.firebase.firestore.QueryDocumentSnapshot;
+import com.google.firebase.firestore.QuerySnapshot;
 
 import java.util.ArrayList;
 
@@ -37,11 +45,16 @@ public class NotasFragment extends Fragment {
     FloatingActionButton floatingActionButtonSelectAll;
 
     ArrayList<NotasModel> listaNotas;
-    NotasAdapter notasAdapter;
+    public static NotasAdapter notasAdapter;
 
 
     public static NotasModel nota;
     public static boolean editar;
+
+    FirebaseAuth firebaseAuth;
+    FirebaseFirestore firebaseFirestore;
+    FirebaseUser firebaseUser;
+
 
     //DB
     public static SQLite conn;
@@ -59,10 +72,16 @@ public class NotasFragment extends Fragment {
         nota = new NotasModel("","",0);
         editar = false;
 
+        firebaseAuth = FirebaseAuth.getInstance();
+        firebaseFirestore = FirebaseFirestore.getInstance();
+        firebaseUser = firebaseAuth.getCurrentUser();
+
         conn = new SQLite(getActivity().getApplication(),"bd_notas",null,1);
 
         notasRecicler = view.findViewById(R.id.recicler_notas);
         listaNotas = new ArrayList<>();
+
+
 
         staggeredGridLayoutManager = new StaggeredGridLayoutManager(2,StaggeredGridLayoutManager.VERTICAL);
         notasRecicler.setLayoutManager(staggeredGridLayoutManager);
@@ -81,7 +100,11 @@ public class NotasFragment extends Fragment {
         floatingActionButtonSelectAll.hide();
 
 
-        consultarListaNotas();
+        if (firebaseUser!=null){
+            consultarFirestore();
+        }else{
+            consultarListaNotas();
+        }
 
         floatingActionButton.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -135,6 +158,36 @@ public class NotasFragment extends Fragment {
 
         notasAdapter.notifyDataSetChanged();
 
+    }
+
+    private void consultarFirestore(){
+        listaNotas.clear();
+
+        final NotasModel[] notasModelFire = new NotasModel[1];
+        firebaseFirestore.collection("notes")
+                .document(firebaseUser.getUid())
+                .collection("myNotes")
+                .whereEqualTo(firebaseUser.getUid(),firebaseUser.getUid())
+                .get()
+                .addOnCompleteListener(new OnCompleteListener<QuerySnapshot>() {
+                    @Override
+                    public void onComplete(@NonNull Task<QuerySnapshot> task) {
+                        if (task.isSuccessful()){
+                            for(QueryDocumentSnapshot document : task.getResult()){
+                                notasModelFire[0] = new NotasModel();
+                                notasModelFire[0].setId(Integer.parseInt(document.getId()));
+                                notasModelFire[0].setTitulo((String) document.get("title"));
+                                notasModelFire[0].setContenido((String) document.get("content"));
+
+                                listaNotas.add(notasModelFire[0]);
+                            }
+                        }else{
+
+                        }
+                    }
+                });
+
+        notasAdapter.notifyDataSetChanged();
     }
 
     @Override
