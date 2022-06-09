@@ -6,6 +6,7 @@ import androidx.appcompat.app.AppCompatActivity;
 
 import android.content.ContentValues;
 import android.content.Intent;
+import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 import android.nfc.Tag;
 import android.os.Bundle;
@@ -38,11 +39,12 @@ public class CrearNotasActivity extends AppCompatActivity {
     FloatingActionButton salirGuardarNota;
     Button buttonDelete;
     Button buttonAddImage;
-    int num = 0;
+
 
     FirebaseAuth firebaseAuth;
     FirebaseUser firebaseUser;
     FirebaseFirestore firebaseFirestore;
+    String notaIdFirebase;
 
 
 
@@ -116,7 +118,7 @@ public class CrearNotasActivity extends AppCompatActivity {
     private void eliminarNotaFirebase() {
         DocumentReference documentReference = firebaseFirestore.collection("notes")
                 .document(firebaseUser.getUid())
-                .collection("myNotes").document(String.valueOf(NotasFragment.nota.getId()-1));
+                .collection("myNotes").document(String.valueOf(NotasFragment.nota.getId()));
 
         documentReference
                 .delete()
@@ -139,7 +141,7 @@ public class CrearNotasActivity extends AppCompatActivity {
         DocumentReference documentReference = firebaseFirestore
                 .collection("notes")
                 .document(firebaseUser.getUid())
-                .collection("myNotes").document(String.valueOf(NotasFragment.nota.getId()-1));
+                .collection("myNotes").document(String.valueOf(NotasFragment.nota.getId()));
 
         Map<String ,Object> note = new HashMap<>();
         String titulo = editTextTitulo.getText().toString();
@@ -181,7 +183,7 @@ public class CrearNotasActivity extends AppCompatActivity {
         DocumentReference documentReference = firebaseFirestore
                 .collection("notes")
                 .document(firebaseUser.getUid())
-                .collection("myNotes").document(String.valueOf(NotasFragment.nota.getId()));
+                .collection("myNotes").document(notaIdFirebase);
         Map<String ,Object> note = new HashMap<>();
         note.put("title",editTextTitulo.getText().toString());
         note.put("content",editTextContenido.getText().toString());
@@ -219,7 +221,15 @@ public class CrearNotasActivity extends AppCompatActivity {
 
         db.insert(Utilidades.tablaNotas,null,values);
 
+        String select = "SELECT "+Utilidades.campoId+" FROM "+Utilidades.tablaNotas;
 
+        Cursor cursor = db.rawQuery(select,null);
+
+        do {
+            cursor.moveToNext();
+        }while (cursor.isLast()!=true);
+
+        notaIdFirebase = String.valueOf(cursor.getInt(0));
     }
 
     public void actualizarNota(){

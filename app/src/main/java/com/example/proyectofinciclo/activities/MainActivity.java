@@ -18,8 +18,6 @@ import android.view.View;
 import android.widget.ImageView;
 import android.widget.TextView;
 
-import com.example.proyectofinciclo.adapters.NotasAdapter;
-import com.example.proyectofinciclo.fragments.AudiosFragment;
 import com.example.proyectofinciclo.fragments.CuentaFragment;
 import com.example.proyectofinciclo.fragments.NotasFragment;
 import com.example.proyectofinciclo.R;
@@ -147,11 +145,6 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
             case R.id.nav_item_notas:
 
                 ft.replace(R.id.content, new NotasFragment()).commit();
-                break;
-
-            case R.id.nav_item_audios:
-
-                ft.replace(R.id.content, new AudiosFragment()).commit();
                 break;
             case R.id.nav_item_cuenta:
 

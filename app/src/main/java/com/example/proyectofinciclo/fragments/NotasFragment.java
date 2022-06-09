@@ -13,6 +13,7 @@ import androidx.recyclerview.widget.StaggeredGridLayoutManager;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.Toast;
 
 import com.example.proyectofinciclo.adapters.NotasAdapter;
 import com.example.proyectofinciclo.models.NotasModel;
@@ -21,15 +22,22 @@ import com.example.proyectofinciclo.database.SQLite;
 import com.example.proyectofinciclo.database.Utilidades;
 import com.example.proyectofinciclo.activities.CrearNotasActivity;
 import com.google.android.gms.tasks.OnCompleteListener;
+import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.android.gms.tasks.Task;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
+import com.google.firebase.firestore.CollectionReference;
+import com.google.firebase.firestore.DocumentReference;
+import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.QueryDocumentSnapshot;
 import com.google.firebase.firestore.QuerySnapshot;
+import com.google.firebase.firestore.Source;
 
 import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.Map;
 
 /**
  * A simple {@link Fragment} subclass.
@@ -125,7 +133,7 @@ public class NotasFragment extends Fragment {
                 nota.setContenido(listaNotas.get(notasRecicler.getChildAdapterPosition(view)).getContenido());
 
                 editar = true;
-
+                Toast.makeText(getActivity().getApplication(), String.valueOf(nota.getId()), Toast.LENGTH_SHORT).show();
                 startActivity(new Intent(getActivity().getApplication(),CrearNotasActivity.class));
 
             }
@@ -163,29 +171,22 @@ public class NotasFragment extends Fragment {
     private void consultarFirestore(){
         listaNotas.clear();
 
-        final NotasModel[] notasModelFire = new NotasModel[1];
-        firebaseFirestore.collection("notes")
+        CollectionReference collectionReference = firebaseFirestore
+                .collection("notes")
                 .document(firebaseUser.getUid())
-                .collection("myNotes")
-                .whereEqualTo(firebaseUser.getUid(),firebaseUser.getUid())
+                .collection("myNotes");
+
+        collectionReference
                 .get()
-                .addOnCompleteListener(new OnCompleteListener<QuerySnapshot>() {
+                .addOnSuccessListener(new OnSuccessListener<QuerySnapshot>() {
                     @Override
-                    public void onComplete(@NonNull Task<QuerySnapshot> task) {
-                        if (task.isSuccessful()){
-                            for(QueryDocumentSnapshot document : task.getResult()){
-                                notasModelFire[0] = new NotasModel();
-                                notasModelFire[0].setId(Integer.parseInt(document.getId()));
-                                notasModelFire[0].setTitulo((String) document.get("title"));
-                                notasModelFire[0].setContenido((String) document.get("content"));
-
-                                listaNotas.add(notasModelFire[0]);
-                            }
-                        }else{
-
+                    public void onSuccess(QuerySnapshot queryDocumentSnapshots) {
+                        for (QueryDocumentSnapshot documentSnapshot : queryDocumentSnapshots){
+                            listaNotas.add(documentSnapshot.toObject(NotasModel.class));
                         }
                     }
                 });
+
 
         notasAdapter.notifyDataSetChanged();
     }
@@ -193,7 +194,11 @@ public class NotasFragment extends Fragment {
     @Override
     public void onStart() {
         super.onStart();
-        consultarListaNotas();
+        if (firebaseUser!=null){
+            consultarFirestore();
+        }else{
+            consultarListaNotas();
+        }
 
     }
 
