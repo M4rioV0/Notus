@@ -23,8 +23,8 @@
         android:layout_marginBottom="10dp"
         android:text="correo"
         android:textColor="@android:color/black"
-        android:textSize="14sp"
-        android:textStyle="italic" />
+        android:textSize="18sp"
+        android:textStyle="" />
 
 
 </LinearLayout>

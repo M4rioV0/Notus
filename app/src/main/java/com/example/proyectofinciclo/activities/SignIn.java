@@ -137,34 +137,21 @@ public class SignIn extends AppCompatActivity {
             note.put("title",titulo);
             note.put("content",contenido);
 
-            documentReference
-                    .update(note)
+            documentReference.set(note)
                     .addOnSuccessListener(new OnSuccessListener<Void>() {
-                        @Override
-                        public void onSuccess(Void unused) {
-                            //Toast.makeText(CrearNotasActivity.this, "Titulo actualizado", Toast.LENGTH_SHORT).show();
-                        }
-                    })
-                    .addOnFailureListener(new OnFailureListener() {
-                        @Override
-                        public void onFailure(@NonNull Exception e) {
-                            //Toast.makeText(CrearNotasActivity.this, "fallo al actualizar el titulo", Toast.LENGTH_SHORT).show();
-                        }
-                    });
-            documentReference
-                    .update(note)
-                    .addOnSuccessListener(new OnSuccessListener<Void>() {
-                        @Override
-                        public void onSuccess(Void unused) {
-                            //Toast.makeText(CrearNotasActivity.this, "Contenido actualizado", Toast.LENGTH_SHORT).show();
-                        }
-                    })
-                    .addOnFailureListener(new OnFailureListener() {
-                        @Override
-                        public void onFailure(@NonNull Exception e) {
-                            //Toast.makeText(CrearNotasActivity.this, "fallo al actualizar el contenido", Toast.LENGTH_SHORT).show();
-                        }
-                    });
+                @Override
+                public void onSuccess(Void unused) {
+
+                }
+            }).addOnFailureListener(new OnFailureListener() {
+                @Override
+                public void onFailure(@NonNull Exception e) {
+
+                }
+            });
+
+
+
 
         }
 

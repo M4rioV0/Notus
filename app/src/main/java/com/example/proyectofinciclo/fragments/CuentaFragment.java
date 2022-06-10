@@ -3,9 +3,11 @@ package com.example.proyectofinciclo.fragments;
 import static android.app.Activity.RESULT_OK;
 import static android.service.controls.ControlsProviderService.TAG;
 
+import android.annotation.SuppressLint;
 import android.app.ProgressDialog;
 import android.content.ActivityNotFoundException;
 import android.content.Intent;
+import android.database.Cursor;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.net.Uri;
@@ -83,8 +85,7 @@ public class CuentaFragment extends Fragment {
     private FirebaseUser firebaseUser;
     FirebaseFirestore firebaseFirestore;
 
-    private Uri imageUri;
-    private Bitmap bitmap;
+
     public static Bitmap userImageBitmap;
     private String encodedImage;
     public static Boolean userimage = false;
@@ -119,8 +120,6 @@ public class CuentaFragment extends Fragment {
                 public void onClick(View view) {
                     if (firebaseUser!=null){
                         pickImage();
-                        bitmapToString();
-                        uploadProfileImage();
                     }
                 }
             });
@@ -185,33 +184,41 @@ public class CuentaFragment extends Fragment {
         super.onActivityResult(requestCode, resultCode, data);
 
         if (requestCode == PICK_IMAGE && resultCode == RESULT_OK){
-            try {
-                InputStream inputStream = getActivity().getApplication().getContentResolver().openInputStream(data.getData());
-                bitmap = BitmapFactory.decodeStream(inputStream);
-            } catch (FileNotFoundException e) {
-                e.printStackTrace();
-            }
+
+            Uri imageUri = data.getData();
+            String[] filePathColumn = { MediaStore.Images.Media.DATA };
+            Cursor cursor = getActivity().getApplication().getContentResolver().query(imageUri,
+                    filePathColumn, null, null, null);
+            cursor.moveToFirst();
+            int columnIndex = cursor.getColumnIndex(filePathColumn[0]);
+            String picturePath = cursor.getString(columnIndex);
+            cursor.close();
+            BitmapFactory.Options options = new BitmapFactory.Options();
+            options.inPreferredConfig = Bitmap.Config.ARGB_8888;
+            Bitmap bitmap = BitmapFactory.decodeFile(picturePath, options);
+            bitmapToString(bitmap);
 
         }
     }
 
-    private void bitmapToString(){
+    private void bitmapToString(Bitmap bitmap){
         ByteArrayOutputStream byteArrayOutputStream = new ByteArrayOutputStream();
         bitmap.compress(Bitmap.CompressFormat.PNG, 100,byteArrayOutputStream);
         byte[] b =byteArrayOutputStream.toByteArray();
         encodedImage = Base64.encodeToString(b,  Base64.DEFAULT);
+        uploadProfileImage();
     }
 
     private Bitmap stringToBitMap(String encodedString){
         try{
             byte [] encodeByte = Base64.decode(encodedString,Base64.DEFAULT);
             Bitmap bitmap = BitmapFactory.decodeByteArray(encodeByte, 0,encodeByte.length);
-
+            return bitmap;
         }catch (Exception e){
             e.getMessage();
             return null;
         }
-        return bitmap;
+
     }
 
     private void uploadProfileImage() {
