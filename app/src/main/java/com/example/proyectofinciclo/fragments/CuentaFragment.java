@@ -1,5 +1,8 @@
 package com.example.proyectofinciclo.fragments;
 
+import static android.app.Activity.RESULT_OK;
+import static android.service.controls.ControlsProviderService.TAG;
+
 import android.app.ProgressDialog;
 import android.content.ActivityNotFoundException;
 import android.content.Intent;
@@ -9,9 +12,12 @@ import android.net.Uri;
 import android.os.Bundle;
 
 import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
 
+import android.provider.MediaStore;
 import android.util.Base64;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -21,11 +27,15 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import com.example.proyectofinciclo.R;
+import com.example.proyectofinciclo.activities.CrearNotasActivity;
 import com.example.proyectofinciclo.activities.ForgotPassword;
 import com.example.proyectofinciclo.activities.MainActivity;
 import com.example.proyectofinciclo.activities.SignIn;
+import com.example.proyectofinciclo.models.NotasModel;
 import com.google.android.gms.tasks.Continuation;
 import com.google.android.gms.tasks.OnCompleteListener;
+import com.google.android.gms.tasks.OnFailureListener;
+import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.android.gms.tasks.Task;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
@@ -34,11 +44,21 @@ import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.ValueEventListener;
+import com.google.firebase.firestore.CollectionReference;
+import com.google.firebase.firestore.DocumentReference;
+import com.google.firebase.firestore.DocumentSnapshot;
+import com.google.firebase.firestore.FirebaseFirestore;
+import com.google.firebase.firestore.QuerySnapshot;
 import com.google.firebase.storage.FirebaseStorage;
 import com.google.firebase.storage.StorageReference;
 import com.google.firebase.storage.StorageTask;
 
+import java.io.ByteArrayOutputStream;
+import java.io.FileNotFoundException;
+import java.io.InputStream;
 import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
 /**
  * A simple {@link Fragment} subclass.
@@ -48,6 +68,7 @@ import java.util.HashMap;
 public class CuentaFragment extends Fragment {
 
     final int PIC_CROP = 1;
+    final int PICK_IMAGE = 95;
 
     ImageView imageViewUserProfilePic;
     TextView textViewChangeProfilePic;
@@ -59,13 +80,14 @@ public class CuentaFragment extends Fragment {
 
 
     private FirebaseAuth firebaseAuth;
-    private DatabaseReference databaseReference;
+    private FirebaseUser firebaseUser;
+    FirebaseFirestore firebaseFirestore;
 
     private Uri imageUri;
-    private String myUri = "";
-    private StorageTask uploadTask;
-    private StorageReference storageProfilePicReference;
-    private DataSnapshot dataSnapshot;
+    private Bitmap bitmap;
+    public static Bitmap userImageBitmap;
+    private String encodedImage;
+    public static Boolean userimage = false;
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
@@ -76,19 +98,19 @@ public class CuentaFragment extends Fragment {
         textViewChangeProfilePic = view.findViewById(R.id.tv_cambiar_imagen_usuario);
         textViewChangeAccount = view.findViewById(R.id.tv_cambiar_cuenta);
         textViewChangePassword = view.findViewById(R.id.tv_cambiar_contraseña);
-        textViewNombre = view.findViewById(R.id.tv_nombre_usuario);
         textViewCorreo = view.findViewById(R.id.tv_correo_usuario);
         buttonSignOut = view.findViewById(R.id.btt_sign_out);
 
 
         firebaseAuth = FirebaseAuth.getInstance();
-        FirebaseUser firebaseUser = firebaseAuth.getCurrentUser();
+        firebaseFirestore = FirebaseFirestore.getInstance();
+        firebaseUser = firebaseAuth.getCurrentUser();
 
         if (firebaseUser!=null){
-            databaseReference = FirebaseDatabase.getInstance().getReference().child("User");
-            storageProfilePicReference = FirebaseStorage.getInstance().getReference().child("Profile pic");
-            textViewNombre.setText(firebaseUser.getDisplayName());
             textViewCorreo.setText(firebaseUser.getEmail());
+            if (userimage){
+                imageViewUserProfilePic.setImageBitmap(userImageBitmap);
+            }
         }
 
 
@@ -96,7 +118,8 @@ public class CuentaFragment extends Fragment {
                 @Override
                 public void onClick(View view) {
                     if (firebaseUser!=null){
-                        cropImageMethod();
+                        pickImage();
+                        bitmapToString();
                         uploadProfileImage();
                     }
                 }
@@ -144,58 +167,98 @@ public class CuentaFragment extends Fragment {
 
 
 
-        if (firebaseUser!=null){
-            getUserInfo();
-        }
+
 
         return view;
     }
 
-    private void selectImage(){
+    private void pickImage(){
+        Intent galeria = new Intent();
+        galeria.setType("image/*");
+        galeria.setAction(Intent.ACTION_GET_CONTENT);
 
+        startActivityForResult(Intent.createChooser(galeria,"selecciona una imagen"), PICK_IMAGE);
     }
 
-    private void cropImageMethod(){
+    @Override
+    public void onActivityResult(int requestCode, int resultCode, @Nullable Intent data) {
+        super.onActivityResult(requestCode, resultCode, data);
 
+        if (requestCode == PICK_IMAGE && resultCode == RESULT_OK){
+            try {
+                InputStream inputStream = getActivity().getApplication().getContentResolver().openInputStream(data.getData());
+                bitmap = BitmapFactory.decodeStream(inputStream);
+            } catch (FileNotFoundException e) {
+                e.printStackTrace();
+            }
+
+        }
+    }
+
+    private void bitmapToString(){
+        ByteArrayOutputStream byteArrayOutputStream = new ByteArrayOutputStream();
+        bitmap.compress(Bitmap.CompressFormat.PNG, 100,byteArrayOutputStream);
+        byte[] b =byteArrayOutputStream.toByteArray();
+        encodedImage = Base64.encodeToString(b,  Base64.DEFAULT);
+    }
+
+    private Bitmap stringToBitMap(String encodedString){
+        try{
+            byte [] encodeByte = Base64.decode(encodedString,Base64.DEFAULT);
+            Bitmap bitmap = BitmapFactory.decodeByteArray(encodeByte, 0,encodeByte.length);
+
+        }catch (Exception e){
+            e.getMessage();
+            return null;
+        }
+        return bitmap;
     }
 
     private void uploadProfileImage() {
-
-    }
-
-    private void getUserInfo(){
-
-        databaseReference.child(firebaseAuth.getCurrentUser().getUid()).addValueEventListener(new ValueEventListener() {
+        DocumentReference documentReference = firebaseFirestore
+                .collection("notes")
+                .document(firebaseUser.getUid())
+                .collection("profilePic")
+                .document("pm");
+        Map<String ,Object> imagenPerfil = new HashMap<>();
+        imagenPerfil.put("profileImage",encodedImage);
+        documentReference.set(imagenPerfil).addOnSuccessListener(new OnSuccessListener<Void>() {
             @Override
-            public void onDataChange(@NonNull DataSnapshot snapshot) {
-
-                if (dataSnapshot.exists() && dataSnapshot.getChildrenCount()>0){
-                    if (dataSnapshot.hasChild("image")){
-                        String image = dataSnapshot.child("image").getValue().toString();
-                        Bitmap bitmap = stringToBitMap(image);
-                        imageViewUserProfilePic.setImageBitmap(bitmap);
-                    }
-                }
-
+            public void onSuccess(Void unused) {
+                Toast.makeText(getActivity().getApplication(), "Imagen subida", Toast.LENGTH_SHORT).show();
             }
-
+        }).addOnFailureListener(new OnFailureListener() {
             @Override
-            public void onCancelled(@NonNull DatabaseError error) {
-
+            public void onFailure(@NonNull Exception e) {
+                Toast.makeText(getActivity().getApplication(), "error al subir la imagen", Toast.LENGTH_SHORT).show();
             }
         });
 
     }
+    private void downloadImage(){
+        CollectionReference collectionReference = firebaseFirestore
+                .collection("notes")
+                .document(firebaseUser.getUid())
+                .collection("profilePic");
 
-    private Bitmap stringToBitMap(String image) {
-        try {
-            byte[] encodeByte = Base64.decode(image, Base64.DEFAULT);
-            Bitmap bitmap = BitmapFactory.decodeByteArray(encodeByte, 0, encodeByte.length);
-            return bitmap;
-        } catch (Exception e) {
-            e.getMessage();
-            return null;
-        }
+        collectionReference
+                .get()
+                .addOnSuccessListener(new OnSuccessListener<QuerySnapshot>() {
+                    @Override
+                    public void onSuccess(QuerySnapshot queryDocumentSnapshots) {
+                        List<DocumentSnapshot> snapshotList = queryDocumentSnapshots.getDocuments();
+                        for (DocumentSnapshot snapshot: snapshotList){
+                            userImageBitmap = stringToBitMap((String) snapshot.get("profileImage"));
+                            userimage = true;
+                        }
+                    }
+                })
+                .addOnFailureListener(new OnFailureListener() {
+                    @Override
+                    public void onFailure(@NonNull Exception e) {
+                        Toast.makeText(getActivity().getApplication(), "Fallo al cargar la imagen", Toast.LENGTH_SHORT).show();
+                    }
+                });
     }
 
 }

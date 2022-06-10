@@ -63,12 +63,15 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
 
         View nview = navigationView.getHeaderView(0);
         imgUserNav = nview.findViewById(R.id.img_user_nav);
-        txvUserName = nview.findViewById(R.id.text_view_nombreusuario);
         txvUserEmail = nview.findViewById(R.id.textView_correo);
         imgUserNav.setImageResource(R.drawable.usuario);
 
         if (firebaseUser!=null){
             txvUserEmail.setText(firebaseUser.getEmail());
+            if (CuentaFragment.userimage){
+                imgUser.setImageBitmap(CuentaFragment.userImageBitmap);
+                imgUserNav.setImageBitmap(CuentaFragment.userImageBitmap);
+            }
         }
 
 

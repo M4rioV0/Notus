@@ -1,8 +1,12 @@
 package com.example.proyectofinciclo.fragments;
 
+import static android.service.controls.ControlsProviderService.TAG;
+
+import android.content.ContentValues;
 import android.content.Intent;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
+import android.nfc.Tag;
 import android.os.Bundle;
 
 import androidx.annotation.NonNull;
@@ -10,6 +14,7 @@ import androidx.fragment.app.Fragment;
 import androidx.recyclerview.widget.RecyclerView;
 import androidx.recyclerview.widget.StaggeredGridLayoutManager;
 
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -22,6 +27,7 @@ import com.example.proyectofinciclo.database.SQLite;
 import com.example.proyectofinciclo.database.Utilidades;
 import com.example.proyectofinciclo.activities.CrearNotasActivity;
 import com.google.android.gms.tasks.OnCompleteListener;
+import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.android.gms.tasks.Task;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
@@ -37,6 +43,7 @@ import com.google.firebase.firestore.Source;
 
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 /**
@@ -169,6 +176,7 @@ public class NotasFragment extends Fragment {
     }
 
     private void consultarFirestore(){
+
         listaNotas.clear();
 
         CollectionReference collectionReference = firebaseFirestore
@@ -176,19 +184,33 @@ public class NotasFragment extends Fragment {
                 .document(firebaseUser.getUid())
                 .collection("myNotes");
 
+        final NotasModel[] notasModel = new NotasModel[1];
+
         collectionReference
                 .get()
                 .addOnSuccessListener(new OnSuccessListener<QuerySnapshot>() {
                     @Override
                     public void onSuccess(QuerySnapshot queryDocumentSnapshots) {
-                        for (QueryDocumentSnapshot documentSnapshot : queryDocumentSnapshots){
-                            listaNotas.add(documentSnapshot.toObject(NotasModel.class));
+                        List<DocumentSnapshot> snapshotList = queryDocumentSnapshots.getDocuments();
+                        listaNotas.clear();
+                        for (DocumentSnapshot snapshot: snapshotList){
+                            int id = Integer.parseInt(snapshot.getId());
+                            String titulo = snapshot.get("title").toString();
+                            String content = snapshot.get("content").toString();
+                            notasModel[0] = new NotasModel(titulo,content,id);
+                            listaNotas.add(notasModel[0]);
+
                         }
+                        notasAdapter.notifyDataSetChanged();
+                    }
+                })
+                .addOnFailureListener(new OnFailureListener() {
+                    @Override
+                    public void onFailure(@NonNull Exception e) {
+                        Toast.makeText(getActivity().getApplication(), "Fallo al cargar las notas", Toast.LENGTH_SHORT).show();
                     }
                 });
 
-
-        notasAdapter.notifyDataSetChanged();
     }
 
     @Override
