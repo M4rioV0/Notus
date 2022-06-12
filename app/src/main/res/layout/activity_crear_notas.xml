@@ -76,7 +76,14 @@
         android:translationY="655dp"
         app:icon="@drawable/ic_baseline_add_photo_alternate_24" />
 
-
+    <Button
+        android:id="@+id/btt_quitar_imagen"
+        style="@style/Widget.Material3.Button.ElevatedButton"
+        android:layout_width="65dp"
+        android:layout_height="50dp"
+        android:translationX="100dp"
+        android:translationY="655dp"
+        app:icon="@drawable/ic_baseline_hide_image_24" />
 
 
 </RelativeLayout>

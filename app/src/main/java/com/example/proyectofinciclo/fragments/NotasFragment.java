@@ -1,12 +1,8 @@
 package com.example.proyectofinciclo.fragments;
 
-import static android.service.controls.ControlsProviderService.TAG;
-
-import android.content.ContentValues;
 import android.content.Intent;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
-import android.nfc.Tag;
 import android.os.Bundle;
 
 import androidx.annotation.NonNull;
@@ -14,38 +10,29 @@ import androidx.fragment.app.Fragment;
 import androidx.recyclerview.widget.RecyclerView;
 import androidx.recyclerview.widget.StaggeredGridLayoutManager;
 
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Toast;
 
-import com.example.proyectofinciclo.adapters.ImageNoteAdapter;
 import com.example.proyectofinciclo.adapters.NotasAdapter;
 import com.example.proyectofinciclo.models.NotasModel;
 import com.example.proyectofinciclo.R;
 import com.example.proyectofinciclo.database.SQLite;
 import com.example.proyectofinciclo.database.Utilidades;
 import com.example.proyectofinciclo.activities.CrearNotasActivity;
-import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.OnSuccessListener;
-import com.google.android.gms.tasks.Task;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.firestore.CollectionReference;
-import com.google.firebase.firestore.DocumentReference;
 import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.FirebaseFirestore;
-import com.google.firebase.firestore.QueryDocumentSnapshot;
 import com.google.firebase.firestore.QuerySnapshot;
-import com.google.firebase.firestore.Source;
 
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 
 /**
  * A simple {@link Fragment} subclass.
@@ -60,9 +47,8 @@ public class NotasFragment extends Fragment {
     FloatingActionButton floatingActionButtonDelete;
     FloatingActionButton floatingActionButtonSelectAll;
 
-    ArrayList<NotasModel> listaNotas = new ArrayList<>();
-    public static NotasAdapter notasAdapter;
-    public static ImageNoteAdapter imageNoteAdapter;
+    ArrayList<NotasModel> listaNotas;
+    NotasAdapter notasAdapter ;
 
 
     public static NotasModel nota;
@@ -75,10 +61,6 @@ public class NotasFragment extends Fragment {
 
     //DB
     public static SQLite conn;
-
-    public NotasFragment() {
-        // Required empty public constructor
-    }
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,Bundle savedInstanceState) {
@@ -98,12 +80,12 @@ public class NotasFragment extends Fragment {
         notasRecicler = view.findViewById(R.id.recicler_notas);
 
 
-
         staggeredGridLayoutManager = new StaggeredGridLayoutManager(2,StaggeredGridLayoutManager.VERTICAL);
         notasRecicler.setLayoutManager(staggeredGridLayoutManager);
 
+        listaNotas  = new ArrayList<>();
         notasAdapter = new NotasAdapter(listaNotas);
-        imageNoteAdapter = new ImageNoteAdapter(listaNotas);
+        notasRecicler.setAdapter(notasAdapter);
 
         //Buttons
         floatingActionButton = view.findViewById(R.id.floatingActionButton);
@@ -114,13 +96,6 @@ public class NotasFragment extends Fragment {
         floatingActionButtonEdit.hide();
         floatingActionButtonDelete.hide();
         floatingActionButtonSelectAll.hide();
-
-
-        if (firebaseUser!=null){
-            consultarFirestore();
-        }else{
-            consultarListaNotas();
-        }
 
         floatingActionButton.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -135,24 +110,9 @@ public class NotasFragment extends Fragment {
 
             @Override
             public void onClick(View view) {
-
-                nota.setId(listaNotas.get(notasRecicler.getChildAdapterPosition(view)).getId());
-                nota.setTitulo(listaNotas.get(notasRecicler.getChildAdapterPosition(view)).getTitulo());
-                nota.setContenido(listaNotas.get(notasRecicler.getChildAdapterPosition(view)).getContenido());
-                nota.setImagen(listaNotas.get(notasRecicler.getChildAdapterPosition(view)).getImagen());
-
-                editar = true;
-                startActivity(new Intent(getActivity().getApplication(),CrearNotasActivity.class));
-
+                editarNota(view);
             }
 
-        });
-
-        imageNoteAdapter.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                editarNota(v);
-            }
         });
 
         return view;
@@ -166,33 +126,21 @@ public class NotasFragment extends Fragment {
 
         editar = true;
         startActivity(new Intent(getActivity().getApplication(),CrearNotasActivity.class));
+        Toast.makeText(getActivity().getApplication(), String.valueOf(nota.getId()), Toast.LENGTH_SHORT).show();
     }
 
     private void consultarListaNotas() {
-
-
-
         listaNotas.clear();
 
         SQLiteDatabase db = conn.getWritableDatabase();
 
-        NotasModel notasModel = new NotasModel();
+
 
         Cursor cursor = db.rawQuery("SELECT * FROM "+ Utilidades.tablaNotas,null);
 
         while (cursor.moveToNext()){
 
-            String titulo = cursor.getString(1);
-            String contenido = cursor.getString(2);
-
-            if (editar==false){
-                if (titulo.isEmpty()&&contenido.isEmpty()){
-                    notasRecicler.setAdapter(imageNoteAdapter);
-                }else {
-                    notasRecicler.setAdapter(notasAdapter);
-                }
-            }
-
+            NotasModel notasModel = new NotasModel();
             notasModel.setId(cursor.getInt(0));
             notasModel.setTitulo(cursor.getString(1));
             notasModel.setContenido(cursor.getString(2));
@@ -200,13 +148,9 @@ public class NotasFragment extends Fragment {
 
             listaNotas.add(notasModel);
 
-
-
         }
-        editar = false;
 
         notasAdapter.notifyDataSetChanged();
-        imageNoteAdapter.notifyDataSetChanged();
     }
 
     private void consultarFirestore(){
@@ -226,18 +170,10 @@ public class NotasFragment extends Fragment {
                     @Override
                     public void onSuccess(QuerySnapshot queryDocumentSnapshots) {
                         List<DocumentSnapshot> snapshotList = queryDocumentSnapshots.getDocuments();
-                        listaNotas.clear();
                         for (DocumentSnapshot snapshot: snapshotList){
                             int id = Integer.parseInt(snapshot.getId());
                             String titulo = snapshot.get("title").toString();
                             String content = snapshot.get("content").toString();
-                            if (editar==false){
-                                if (titulo.isEmpty()&&content.isEmpty()&&editar==false){
-                                    notasRecicler.setAdapter(imageNoteAdapter);
-                                }else {
-                                    notasRecicler.setAdapter(notasAdapter);
-                                }
-                            }
                             try {
                                 String image = snapshot.get("image").toString();
                                 notasModel[0] = new NotasModel(titulo,content,id,image);
@@ -246,13 +182,9 @@ public class NotasFragment extends Fragment {
                                 notasModel[0] = new NotasModel(titulo,content,id,image);
                             }
 
-
                             listaNotas.add(notasModel[0]);
-
                         }
-                        editar = false;
                         notasAdapter.notifyDataSetChanged();
-                        imageNoteAdapter.notifyDataSetChanged();
                     }
                 })
                 .addOnFailureListener(new OnFailureListener() {
@@ -272,7 +204,6 @@ public class NotasFragment extends Fragment {
         }else{
             consultarListaNotas();
         }
-
     }
 
 }

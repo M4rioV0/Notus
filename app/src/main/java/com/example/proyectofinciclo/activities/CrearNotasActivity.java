@@ -21,6 +21,7 @@ import android.widget.EditText;
 import android.widget.ImageView;
 import android.widget.Toast;
 
+import com.example.proyectofinciclo.adapters.NotasAdapter;
 import com.example.proyectofinciclo.database.DownloadImages;
 import com.example.proyectofinciclo.fragments.NotasFragment;
 import com.example.proyectofinciclo.R;
@@ -48,6 +49,7 @@ public class CrearNotasActivity extends AppCompatActivity {
     FloatingActionButton salirGuardarNota;
     Button buttonDelete;
     Button buttonAddImage;
+    Button buttonRemoveImage;
 
 
     FirebaseAuth firebaseAuth;
@@ -69,6 +71,7 @@ public class CrearNotasActivity extends AppCompatActivity {
         buttonDelete = findViewById(R.id.btt_eliminar_nota);
         imageViewNote = findViewById(R.id.iv_imagen_nota);
         buttonAddImage = findViewById(R.id.btt_añadir_imagen);
+        buttonRemoveImage = findViewById(R.id.btt_quitar_imagen);
 
         firebaseAuth = FirebaseAuth.getInstance();
         firebaseFirestore = FirebaseFirestore.getInstance();
@@ -83,6 +86,13 @@ public class CrearNotasActivity extends AppCompatActivity {
             @Override
             public void onClick(View v) {
                 pickImage();
+            }
+        });
+
+        buttonRemoveImage.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                imageViewNote.setImageBitmap(null);
             }
         });
 
@@ -173,6 +183,7 @@ public class CrearNotasActivity extends AppCompatActivity {
                         }
                         editTextTitulo.setText("");
                         editTextContenido.setText("");
+                        imageViewNote.setImageBitmap(null);
                         finish();
                 }else {
                     finish();
@@ -218,6 +229,7 @@ public class CrearNotasActivity extends AppCompatActivity {
                 .addOnSuccessListener(new OnSuccessListener<Void>() {
                     @Override
                     public void onSuccess(Void unused) {
+                        NotasFragment.editar = false;
                         Toast.makeText(CrearNotasActivity.this, "Nota eliminada", Toast.LENGTH_SHORT).show();
                     }
                 })
@@ -239,19 +251,25 @@ public class CrearNotasActivity extends AppCompatActivity {
         Map<String ,Object> note = new HashMap<>();
         String titulo = editTextTitulo.getText().toString();
         String contenido = editTextContenido.getText().toString();
-        imageViewNote.invalidate();
-        BitmapDrawable drawable = (BitmapDrawable) imageViewNote.getDrawable();
-        Bitmap bitmap = drawable.getBitmap();
-        String imagen = DownloadImages.getStringFromBitmap(bitmap);
         note.put("title",titulo);
         note.put("content",contenido);
-        note.put("image",imagen);
+        try {
+            imageViewNote.invalidate();
+            BitmapDrawable drawable = (BitmapDrawable) imageViewNote.getDrawable();
+            Bitmap bitmap = drawable.getBitmap();
+            String imagen = DownloadImages.getStringFromBitmap(bitmap);
+            note.put("image",imagen);
+        }catch (Exception e){
+            String imagen = "";
+            note.put("image",imagen);
+        }
 
         documentReference
                 .update(note)
                 .addOnSuccessListener(new OnSuccessListener<Void>() {
                     @Override
                     public void onSuccess(Void unused) {
+                        NotasFragment.editar = false;
                         //Toast.makeText(CrearNotasActivity.this, "Titulo actualizado", Toast.LENGTH_SHORT).show();
                     }
                 })
@@ -322,22 +340,21 @@ public class CrearNotasActivity extends AppCompatActivity {
 
         SQLiteDatabase db = NotasFragment.conn.getWritableDatabase();
 
+        String titulo = editTextTitulo.getText().toString();
+        String contenido = editTextContenido.getText().toString();
         ContentValues values = new ContentValues();
-        values.put(Utilidades.campoTitulo,editTextTitulo.getText().toString());
-        values.put(Utilidades.campoContenido,editTextContenido.getText().toString());
+        values.put(Utilidades.campoTitulo,titulo);
+        values.put(Utilidades.campoContenido,contenido);
         try {
             imageViewNote.invalidate();
             BitmapDrawable drawable = (BitmapDrawable) imageViewNote.getDrawable();
             Bitmap bitmap = drawable.getBitmap();
             values.put(Utilidades.campoImagen,DownloadImages.getStringFromBitmap(bitmap));
+            db.insert(Utilidades.tablaNotas,null,values);
         }catch (Exception e){
             values.put(Utilidades.campoImagen,"");
+            db.insert(Utilidades.tablaNotas,null,values);
         }
-
-
-
-
-        db.insert(Utilidades.tablaNotas,null,values);
 
         String select = "SELECT "+Utilidades.campoId+" FROM "+Utilidades.tablaNotas;
 
@@ -348,6 +365,8 @@ public class CrearNotasActivity extends AppCompatActivity {
         }while (cursor.isLast()!=true);
 
         notaIdFirebase = String.valueOf(cursor.getInt(0));
+
+
     }
 
     public void actualizarNota(){
@@ -363,12 +382,21 @@ public class CrearNotasActivity extends AppCompatActivity {
             BitmapDrawable drawable = (BitmapDrawable) imageViewNote.getDrawable();
             Bitmap bitmap = drawable.getBitmap();
             values.put(Utilidades.campoImagen,DownloadImages.getStringFromBitmap(bitmap));
+            db.update(Utilidades.tablaNotas,values,Utilidades.campoId+"=?",id);
         }catch (Exception e){
             db.update(Utilidades.tablaNotas,values,Utilidades.campoId+"=?",id);
-
         }
+        NotasFragment.editar = false;
 
-        db.update(Utilidades.tablaNotas,values,Utilidades.campoId+"=?",id);
+        String select = "SELECT "+Utilidades.campoId+" FROM "+Utilidades.tablaNotas;
+
+        Cursor cursor = db.rawQuery(select,null);
+
+        do {
+            cursor.moveToNext();
+        }while (cursor.isLast()!=true);
+
+        notaIdFirebase = String.valueOf(cursor.getInt(0));
 
     }
 
@@ -378,6 +406,7 @@ public class CrearNotasActivity extends AppCompatActivity {
         String[] id = {String.valueOf(NotasFragment.nota.getId())};
 
         db.delete(Utilidades.tablaNotas,Utilidades.campoId+"=?",id);
+        NotasFragment.editar = false;
     }
 
 }

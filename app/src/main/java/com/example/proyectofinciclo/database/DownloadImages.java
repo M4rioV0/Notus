@@ -44,7 +44,7 @@ public class DownloadImages {
     }
 
     public static String getStringFromBitmap(Bitmap bitmap){
-        int anchoImagen = 150;
+        int anchoImagen = 500;
         int altoImagen =  bitmap.getHeight() * anchoImagen / bitmap.getWidth();
         Bitmap bitmapPreview = Bitmap.createScaledBitmap(bitmap,anchoImagen,altoImagen,false);
         ByteArrayOutputStream byteArrayOutputStream = new ByteArrayOutputStream();

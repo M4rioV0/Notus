@@ -6,6 +6,8 @@ import androidx.appcompat.app.AppCompatActivity;
 import android.content.Intent;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
+import android.graphics.Bitmap;
+import android.graphics.drawable.BitmapDrawable;
 import android.os.Bundle;
 import android.view.View;
 import android.widget.Button;
@@ -134,24 +136,22 @@ public class SignIn extends AppCompatActivity {
             Map<String ,Object> note = new HashMap<>();
             String titulo = cursor.getString(1);
             String contenido = cursor.getString(2);
+            String imagen = cursor.getString(3);
             note.put("title",titulo);
             note.put("content",contenido);
+            note.put("image",imagen);
 
-            documentReference.set(note)
-                    .addOnSuccessListener(new OnSuccessListener<Void>() {
+            documentReference.set(note).addOnSuccessListener(new OnSuccessListener<Void>() {
                 @Override
                 public void onSuccess(Void unused) {
-
+                    Toast.makeText(SignIn.this, "Nota guardada", Toast.LENGTH_SHORT).show();
                 }
             }).addOnFailureListener(new OnFailureListener() {
                 @Override
                 public void onFailure(@NonNull Exception e) {
-
+                    Toast.makeText(SignIn.this, "error al guardar la nota", Toast.LENGTH_SHORT).show();
                 }
             });
-
-
-
 
         }
 

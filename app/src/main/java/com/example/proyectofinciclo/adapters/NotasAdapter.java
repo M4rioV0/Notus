@@ -15,9 +15,9 @@ import com.example.proyectofinciclo.R;
 
 import java.util.ArrayList;
 
-public class NotasAdapter extends RecyclerView.Adapter<NotasAdapter.NotasViewHolder> implements  View.OnClickListener{
+public class NotasAdapter extends RecyclerView.Adapter implements  View.OnClickListener{
 
-    private ArrayList<NotasModel> listaNotasAdapter  = new ArrayList<>();
+    private ArrayList<NotasModel> listaNotasAdapter = new ArrayList<>();
     private View.OnClickListener listener;
 
 
@@ -27,31 +27,50 @@ public class NotasAdapter extends RecyclerView.Adapter<NotasAdapter.NotasViewHol
 
     @NonNull
     @Override
-    public NotasViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
+    public RecyclerView.ViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
 
-        View view = LayoutInflater.from(parent.getContext()).inflate(R.layout.layout_notas,parent,false);
-        view.setOnClickListener(this);
-        NotasViewHolder nvh = new NotasViewHolder(view);
-
-        return  nvh;
-
+        LayoutInflater layoutInflater = LayoutInflater.from(parent.getContext());
+        View view;
+        if (viewType == 0){
+            view = layoutInflater.inflate(R.layout.layout_imagen, parent, false);
+            view.setOnClickListener(this);
+            ImageViewHolder imh = new ImageViewHolder(view);
+            return  imh;
+        }else{
+            view = layoutInflater.inflate(R.layout.layout_notas, parent, false);
+            view.setOnClickListener(this);
+            NotasViewHolder nvh = new NotasViewHolder(view);
+            return  nvh;
+        }
     }
 
     @Override
-    public void onBindViewHolder(@NonNull NotasViewHolder holder, int position) {
+    public void onBindViewHolder(@NonNull RecyclerView.ViewHolder holder, int position) {
 
-        holder.titulo.setText(listaNotasAdapter.get(position).getTitulo().toString());
-        holder.contenido.setText(listaNotasAdapter.get(position).getContenido().toString());
-        if (!listaNotasAdapter.get(position).getImagen().toString().isEmpty()){
-            holder.imagen.setImageBitmap(DownloadImages.stringToBitMap(listaNotasAdapter.get(position).getImagen().toString()));
+        if (listaNotasAdapter.get(position).getTitulo().toString().isEmpty()&&listaNotasAdapter.get(position).getContenido().toString().isEmpty()){
+            ImageViewHolder imageViewHolder = (ImageViewHolder) holder;
+            imageViewHolder.imagen.setImageBitmap(DownloadImages.stringToBitMap(listaNotasAdapter.get(position).getImagen().toString()));
+        }else {
+            NotasViewHolder notasViewHolder = (NotasViewHolder) holder;
+            notasViewHolder.titulo.setText(listaNotasAdapter.get(position).getTitulo().toString());
+            notasViewHolder.contenido.setText(listaNotasAdapter.get(position).getContenido().toString());
+            notasViewHolder.imagen.setImageBitmap(DownloadImages.stringToBitMap(listaNotasAdapter.get(position).getImagen().toString()));
         }
-
 
     }
 
     @Override
     public int getItemCount() {
         return listaNotasAdapter.size();
+    }
+
+    @Override
+    public int getItemViewType(int position){
+        if (listaNotasAdapter.get(position).getTitulo().toString().isEmpty()&&listaNotasAdapter.get(position).getContenido().toString().isEmpty()){
+            return 0;
+        }else{
+            return 1;
+        }
     }
 
     public void setOnClickListener(View.OnClickListener listener){
@@ -68,7 +87,7 @@ public class NotasAdapter extends RecyclerView.Adapter<NotasAdapter.NotasViewHol
 
     }
 
-    public class  NotasViewHolder extends RecyclerView.ViewHolder{
+    class  NotasViewHolder extends RecyclerView.ViewHolder{
 
         TextView titulo,contenido;
         ImageView imagen;
@@ -82,5 +101,17 @@ public class NotasAdapter extends RecyclerView.Adapter<NotasAdapter.NotasViewHol
 
         }
 
+    }
+
+    class ImageViewHolder extends  RecyclerView.ViewHolder{
+
+        ImageView imagen;
+
+        public  ImageViewHolder(View itemView){
+            super(itemView);
+
+            imagen = (ImageView) itemView.findViewById(R.id.iv_image);
+
+        }
     }
 }
