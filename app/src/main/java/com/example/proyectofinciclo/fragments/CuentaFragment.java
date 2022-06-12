@@ -33,6 +33,7 @@ import com.example.proyectofinciclo.activities.CrearNotasActivity;
 import com.example.proyectofinciclo.activities.ForgotPassword;
 import com.example.proyectofinciclo.activities.MainActivity;
 import com.example.proyectofinciclo.activities.SignIn;
+import com.example.proyectofinciclo.database.DownloadImages;
 import com.example.proyectofinciclo.models.NotasModel;
 import com.google.android.gms.tasks.Continuation;
 import com.google.android.gms.tasks.OnCompleteListener;
@@ -72,7 +73,7 @@ public class CuentaFragment extends Fragment {
     final int PIC_CROP = 1;
     final int PICK_IMAGE = 95;
 
-    ImageView imageViewUserProfilePic;
+    public static ImageView imageViewUserProfilePic;
     TextView textViewChangeProfilePic;
     TextView textViewChangePassword;
     TextView textViewChangeAccount;
@@ -86,15 +87,14 @@ public class CuentaFragment extends Fragment {
     FirebaseFirestore firebaseFirestore;
 
 
-    public static Bitmap userImageBitmap;
-    private String encodedImage;
-    public static Boolean userimage = false;
+    private Boolean fragmentCargado = false;
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
         View view = inflater.inflate(R.layout.fragment_cuenta, container, false);
 
+        fragmentCargado = true;
         imageViewUserProfilePic = view.findViewById(R.id.user_image);
         textViewChangeProfilePic = view.findViewById(R.id.tv_cambiar_imagen_usuario);
         textViewChangeAccount = view.findViewById(R.id.tv_cambiar_cuenta);
@@ -109,9 +109,7 @@ public class CuentaFragment extends Fragment {
 
         if (firebaseUser!=null){
             textViewCorreo.setText(firebaseUser.getEmail());
-            if (userimage){
-                imageViewUserProfilePic.setImageBitmap(userImageBitmap);
-            }
+            DownloadImages.downloadImage(fragmentCargado);
         }
 
 
@@ -186,86 +184,15 @@ public class CuentaFragment extends Fragment {
         if (requestCode == PICK_IMAGE && resultCode == RESULT_OK){
 
             Uri imageUri = data.getData();
-            String[] filePathColumn = { MediaStore.Images.Media.DATA };
-            Cursor cursor = getActivity().getApplication().getContentResolver().query(imageUri,
-                    filePathColumn, null, null, null);
-            cursor.moveToFirst();
-            int columnIndex = cursor.getColumnIndex(filePathColumn[0]);
-            String picturePath = cursor.getString(columnIndex);
-            cursor.close();
-            BitmapFactory.Options options = new BitmapFactory.Options();
-            options.inPreferredConfig = Bitmap.Config.ARGB_8888;
-            Bitmap bitmap = BitmapFactory.decodeFile(picturePath, options);
-            bitmapToString(bitmap);
+            try {
+                InputStream inputStream = getActivity().getApplication().getContentResolver().openInputStream(imageUri);
+                Bitmap bitmap = BitmapFactory.decodeStream(inputStream);
+                DownloadImages.bitmapToString(bitmap);
+                startActivity(new Intent(getActivity().getApplication(),MainActivity.class));
+            }catch (FileNotFoundException e){
 
-        }
-    }
-
-    private void bitmapToString(Bitmap bitmap){
-        ByteArrayOutputStream byteArrayOutputStream = new ByteArrayOutputStream();
-        bitmap.compress(Bitmap.CompressFormat.PNG, 100,byteArrayOutputStream);
-        byte[] b =byteArrayOutputStream.toByteArray();
-        encodedImage = Base64.encodeToString(b,  Base64.DEFAULT);
-        uploadProfileImage();
-    }
-
-    private Bitmap stringToBitMap(String encodedString){
-        try{
-            byte [] encodeByte = Base64.decode(encodedString,Base64.DEFAULT);
-            Bitmap bitmap = BitmapFactory.decodeByteArray(encodeByte, 0,encodeByte.length);
-            return bitmap;
-        }catch (Exception e){
-            e.getMessage();
-            return null;
-        }
-
-    }
-
-    private void uploadProfileImage() {
-        DocumentReference documentReference = firebaseFirestore
-                .collection("notes")
-                .document(firebaseUser.getUid())
-                .collection("profilePic")
-                .document("pm");
-        Map<String ,Object> imagenPerfil = new HashMap<>();
-        imagenPerfil.put("profileImage",encodedImage);
-        documentReference.set(imagenPerfil).addOnSuccessListener(new OnSuccessListener<Void>() {
-            @Override
-            public void onSuccess(Void unused) {
-                Toast.makeText(getActivity().getApplication(), "Imagen subida", Toast.LENGTH_SHORT).show();
             }
-        }).addOnFailureListener(new OnFailureListener() {
-            @Override
-            public void onFailure(@NonNull Exception e) {
-                Toast.makeText(getActivity().getApplication(), "error al subir la imagen", Toast.LENGTH_SHORT).show();
-            }
-        });
-
-    }
-    private void downloadImage(){
-        CollectionReference collectionReference = firebaseFirestore
-                .collection("notes")
-                .document(firebaseUser.getUid())
-                .collection("profilePic");
-
-        collectionReference
-                .get()
-                .addOnSuccessListener(new OnSuccessListener<QuerySnapshot>() {
-                    @Override
-                    public void onSuccess(QuerySnapshot queryDocumentSnapshots) {
-                        List<DocumentSnapshot> snapshotList = queryDocumentSnapshots.getDocuments();
-                        for (DocumentSnapshot snapshot: snapshotList){
-                            userImageBitmap = stringToBitMap((String) snapshot.get("profileImage"));
-                            userimage = true;
-                        }
-                    }
-                })
-                .addOnFailureListener(new OnFailureListener() {
-                    @Override
-                    public void onFailure(@NonNull Exception e) {
-                        Toast.makeText(getActivity().getApplication(), "Fallo al cargar la imagen", Toast.LENGTH_SHORT).show();
-                    }
-                });
+        }
     }
 
 }

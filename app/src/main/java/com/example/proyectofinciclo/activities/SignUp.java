@@ -48,7 +48,6 @@ public class SignUp extends AppCompatActivity {
 
         firebaseAuth = FirebaseAuth.getInstance();
 
-        imageViewUser = findViewById(R.id.img_user_sp);
         bttRegistrarse = findViewById(R.id.btt_enviar_correo_recuperacion);
         bttSalir = findViewById(R.id.btt_salir_sp);
         editTextEmail = findViewById(R.id.et_correo_reg);

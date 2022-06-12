@@ -20,6 +20,7 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Toast;
 
+import com.example.proyectofinciclo.adapters.ImageNoteAdapter;
 import com.example.proyectofinciclo.adapters.NotasAdapter;
 import com.example.proyectofinciclo.models.NotasModel;
 import com.example.proyectofinciclo.R;
@@ -59,8 +60,9 @@ public class NotasFragment extends Fragment {
     FloatingActionButton floatingActionButtonDelete;
     FloatingActionButton floatingActionButtonSelectAll;
 
-    ArrayList<NotasModel> listaNotas;
+    ArrayList<NotasModel> listaNotas = new ArrayList<>();
     public static NotasAdapter notasAdapter;
+    public static ImageNoteAdapter imageNoteAdapter;
 
 
     public static NotasModel nota;
@@ -84,7 +86,7 @@ public class NotasFragment extends Fragment {
         View view = inflater.inflate(R.layout.fragment_notas, container, false);
         // Inflate the layout for this fragment
 
-        nota = new NotasModel("","",0);
+        nota = new NotasModel("","",0,"");
         editar = false;
 
         firebaseAuth = FirebaseAuth.getInstance();
@@ -94,7 +96,6 @@ public class NotasFragment extends Fragment {
         conn = new SQLite(getActivity().getApplication(),"bd_notas",null,1);
 
         notasRecicler = view.findViewById(R.id.recicler_notas);
-        listaNotas = new ArrayList<>();
 
 
 
@@ -102,7 +103,7 @@ public class NotasFragment extends Fragment {
         notasRecicler.setLayoutManager(staggeredGridLayoutManager);
 
         notasAdapter = new NotasAdapter(listaNotas);
-        notasRecicler.setAdapter(notasAdapter);
+        imageNoteAdapter = new ImageNoteAdapter(listaNotas);
 
         //Buttons
         floatingActionButton = view.findViewById(R.id.floatingActionButton);
@@ -138,41 +139,74 @@ public class NotasFragment extends Fragment {
                 nota.setId(listaNotas.get(notasRecicler.getChildAdapterPosition(view)).getId());
                 nota.setTitulo(listaNotas.get(notasRecicler.getChildAdapterPosition(view)).getTitulo());
                 nota.setContenido(listaNotas.get(notasRecicler.getChildAdapterPosition(view)).getContenido());
+                nota.setImagen(listaNotas.get(notasRecicler.getChildAdapterPosition(view)).getImagen());
 
                 editar = true;
-                Toast.makeText(getActivity().getApplication(), String.valueOf(nota.getId()), Toast.LENGTH_SHORT).show();
                 startActivity(new Intent(getActivity().getApplication(),CrearNotasActivity.class));
 
             }
 
         });
 
+        imageNoteAdapter.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                editarNota(v);
+            }
+        });
+
         return view;
     }
 
+    public void editarNota(View v){
+        nota.setId(listaNotas.get(notasRecicler.getChildAdapterPosition(v)).getId());
+        nota.setTitulo(listaNotas.get(notasRecicler.getChildAdapterPosition(v)).getTitulo());
+        nota.setContenido(listaNotas.get(notasRecicler.getChildAdapterPosition(v)).getContenido());
+        nota.setImagen(listaNotas.get(notasRecicler.getChildAdapterPosition(v)).getImagen());
+
+        editar = true;
+        startActivity(new Intent(getActivity().getApplication(),CrearNotasActivity.class));
+    }
+
     private void consultarListaNotas() {
+
+
 
         listaNotas.clear();
 
         SQLiteDatabase db = conn.getWritableDatabase();
 
-        NotasModel notasModel;
+        NotasModel notasModel = new NotasModel();
 
         Cursor cursor = db.rawQuery("SELECT * FROM "+ Utilidades.tablaNotas,null);
 
         while (cursor.moveToNext()){
 
-            notasModel = new NotasModel();
+            String titulo = cursor.getString(1);
+            String contenido = cursor.getString(2);
+
+            if (editar==false){
+                if (titulo.isEmpty()&&contenido.isEmpty()){
+                    notasRecicler.setAdapter(imageNoteAdapter);
+                }else {
+                    notasRecicler.setAdapter(notasAdapter);
+                }
+            }
+
             notasModel.setId(cursor.getInt(0));
             notasModel.setTitulo(cursor.getString(1));
             notasModel.setContenido(cursor.getString(2));
+            notasModel.setImagen(cursor.getString(3));
 
             listaNotas.add(notasModel);
 
+
+
         }
+        editar = false;
 
         notasAdapter.notifyDataSetChanged();
-
+        imageNoteAdapter.notifyDataSetChanged();
     }
 
     private void consultarFirestore(){
@@ -197,11 +231,28 @@ public class NotasFragment extends Fragment {
                             int id = Integer.parseInt(snapshot.getId());
                             String titulo = snapshot.get("title").toString();
                             String content = snapshot.get("content").toString();
-                            notasModel[0] = new NotasModel(titulo,content,id);
+                            if (editar==false){
+                                if (titulo.isEmpty()&&content.isEmpty()&&editar==false){
+                                    notasRecicler.setAdapter(imageNoteAdapter);
+                                }else {
+                                    notasRecicler.setAdapter(notasAdapter);
+                                }
+                            }
+                            try {
+                                String image = snapshot.get("image").toString();
+                                notasModel[0] = new NotasModel(titulo,content,id,image);
+                            }catch (Exception e){
+                                String image = "";
+                                notasModel[0] = new NotasModel(titulo,content,id,image);
+                            }
+
+
                             listaNotas.add(notasModel[0]);
 
                         }
+                        editar = false;
                         notasAdapter.notifyDataSetChanged();
+                        imageNoteAdapter.notifyDataSetChanged();
                     }
                 })
                 .addOnFailureListener(new OnFailureListener() {
@@ -221,12 +272,6 @@ public class NotasFragment extends Fragment {
         }else{
             consultarListaNotas();
         }
-
-    }
-
-    private void eliminarNotas(ArrayList<NotasModel> listaNotasEliminadas){
-
-
 
     }
 

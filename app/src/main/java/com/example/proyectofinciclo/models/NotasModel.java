@@ -5,14 +5,16 @@ public class NotasModel {
     private int id;
     private  String titulo;
     private  String contenido;
+    private  String imagen;
 
     public NotasModel() {
     }
 
-    public NotasModel(String titulo, String contenido, int id) {
+    public NotasModel(String titulo, String contenido, int id, String imagen) {
         this.titulo = titulo;
         this.contenido = contenido;
         this.id = id;
+        this.imagen = imagen;
     }
 
     public String getTitulo() {
@@ -37,6 +39,14 @@ public class NotasModel {
 
     public void setId(int id) {
         this.id = id;
+    }
+
+    public String getImagen() {
+        return imagen;
+    }
+
+    public void setImagen(String imagen) {
+        this.imagen = imagen;
     }
 }
 

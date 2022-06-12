@@ -21,22 +21,10 @@
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
+            android:layout_marginTop="170dp"
             android:orientation="vertical"
             android:padding="16dp"
             >
-
-
-
-            <com.google.android.material.imageview.ShapeableImageView
-                android:id="@+id/img_user_sp"
-                android:layout_width="150dp"
-                android:layout_height="150dp"
-                android:layout_gravity="center"
-                android:layout_marginTop="30dp"
-                android:layout_marginBottom="20dp"
-                android:background="#D3D3D3"
-                app:shapeAppearance="@style/Circular"
-                />
 
             <TextView
                 android:layout_width="match_parent"

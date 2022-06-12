@@ -14,9 +14,9 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import com.example.proyectofinciclo.R;
+import com.example.proyectofinciclo.database.DownloadImages;
 import com.example.proyectofinciclo.database.Utilidades;
 import com.example.proyectofinciclo.fragments.NotasFragment;
-import com.example.proyectofinciclo.models.NotasModel;
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.OnSuccessListener;
@@ -163,6 +163,7 @@ public class SignIn extends AppCompatActivity {
             Toast.makeText(this, "Logueado", Toast.LENGTH_SHORT).show();
             logueado = true;
             loadSQLiteData();
+            DownloadImages.downloadImage(false);
             finish();
             Intent intent = new Intent(SignIn.this,MainActivity.class);
             startActivity(intent);

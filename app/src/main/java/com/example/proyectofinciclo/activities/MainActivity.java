@@ -18,6 +18,7 @@ import android.view.View;
 import android.widget.ImageView;
 import android.widget.TextView;
 
+import com.example.proyectofinciclo.database.DownloadImages;
 import com.example.proyectofinciclo.fragments.CuentaFragment;
 import com.example.proyectofinciclo.fragments.NotasFragment;
 import com.example.proyectofinciclo.R;
@@ -32,9 +33,9 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
     NavigationView navigationView;
     Toolbar toolbar;
     //Toolbar UI
-    ImageView imgUser;
+    public static ImageView imgUser;
 
-    ImageView imgUserNav;
+    public static ImageView imgUserNav;
     TextView txvUserName;
     TextView txvUserEmail;
 
@@ -68,10 +69,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
 
         if (firebaseUser!=null){
             txvUserEmail.setText(firebaseUser.getEmail());
-            if (CuentaFragment.userimage){
-                imgUser.setImageBitmap(CuentaFragment.userImageBitmap);
-                imgUserNav.setImageBitmap(CuentaFragment.userImageBitmap);
-            }
+            DownloadImages.downloadImage(false);
         }
 
 
