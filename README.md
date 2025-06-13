@@ -1,1 +1,3 @@
-Notus, a simple note taking app.
+Notus
+
+A simple note taking app.
